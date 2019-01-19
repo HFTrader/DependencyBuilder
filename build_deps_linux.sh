@@ -47,23 +47,38 @@ while [ $# -gt 0 ]; do
     shift
 done
 
+# Defaults to clang if CXX/CC is not found
 CXX=${CXX:-$(which clang++)}
 CC=${CC:-$(which clang)}
+
+# Defaults to gcc if clang or CXX/CC is not found
+CXX=${CXX:-$(which clang++)}
+CC=${CC:-$(which clang)}
+
+# Release defaults to "default"
 RELEASE=${RELEASE:-"default"}
 OPSYS="${OPSYS:-$(uname -o)}"
 OPSYS="${OPSYS//\//_}"
 RELEASE="${RELEASE//\//_}"
+
+# Install directory defaults to under the build directory
 INSTALL_DIR=${INSTALL_DIR:-"$BUILD_DIR/install-$OPSYS-$RELEASE"}
-CACHE_DIR=${CACHE_DIR:-"$BUILD_DIR/cache"}
 
-set -e
-set -x
+# Cache directory defaults to under the install directory
+CACHE_DIR=${CACHE_DIR:-"$INSTALL_DIR/deps-cache"}
 
-source "$SCRIPT_DIR/build/build_tools.sh" || exit 1
-source "$SCRIPT_DIR/build/versions-$OPSYS-$RELEASE.sh" || exit 1
-source "$SCRIPT_DIR/build/bootstrap-$OPSYS.sh" || exit 1
-source "$SCRIPT_DIR/build/fallback-$OPSYS.sh" || exit 1
+source "$SCRIPT_DIR/build_tools.sh"
 
+if [ -f "$SCRIPT_DIR/$OPSYS/versions-$RELEASE.sh" ]; then
+    source "$SCRIPT_DIR/$OPSYS/versions-$RELEASE.sh"
+else
+    source "$SCRIPT_DIR/$OPSYS/versions.sh"
+fi
+
+source "$SCRIPT_DIR/$OPSYS/bootstrap.sh"
+source "$SCRIPT_DIR/$OPSYS/recipes.sh"
+
+# Default number of jobs is equal to the number of processors
 NUMJOBS=${NUMJOBS:-$NUMPROCS}
 
 echo "BUILD DIR: $BUILD_DIR"
@@ -71,12 +86,20 @@ echo "INSTALL DIR: ${INSTALL_DIR}"
 echo "CACHE DIR: $CACHE_DIR"
 echo "NUMJOBS: $NUMJOBS"
 
+# Makes directories if they don't exist yet
 mkdir -p "$INSTALL_DIR"
 mkdir -p "$BUILD_DIR"
 mkdir -p "$CACHE_DIR"
 
-cd $BUILD_DIR
+# Breaks if anything fails from now on
+set -e
+set -x
 
-source "$SCRIPT_DIR/build/script-$OPSYS-$RELEASE.sh" || exit 1
+cd $BUILD_DIR
+if [ -f "$SCRIPT_DIR/$OPSYS/script-$RELEASE.sh" ]; then
+    source "$SCRIPT_DIR/$OPSYS/script-$RELEASE.sh"
+else
+    source "$SCRIPT_DIR/$OPSYS/script.sh"
+fi
 
 echo "Sources were installed on ${INSTALL_DIR}"
