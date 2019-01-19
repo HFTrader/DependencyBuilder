@@ -31,35 +31,15 @@ if [ ! -e $INSTALL_DIR/clang.done ]; then
         cd $BUILD_DIR
 
         # Download all necessary packages
-        PACKAGES="cfe llvm compiler-rt clang-tools-extra libunwind lld lldb openmp polly"
+        PACKAGES="cfe llvm compiler-rt clang-tools-extra libunwind lld lldb openmp polly libcxx libcxxabi"
         for pkg in $PACKAGES; do
             TARFILE="${pkg}-${CLANG_ID}.src.tar.xz"
             UNTARDIR="${pkg}-${CLANG_ID}.src"
             if [ ! -e "$CACHE_DIR/$TARFILE" ]; then
-                if [ "$pkg" == "cling" ]; then
-
-                    git clone http://root.cern.ch/git/cling.git $UNTARDIR
-
-                    ( git clone http://root.cern.ch/git/llvm.git llvm-${CLANG_ID} && \
-                        cd llvm-${CLANG_ID} && \
-                            git checkout cling-patches && \
-                            cd tools && git clone http://root.cern.ch/git/cling.git cling && \
-                                        git clone http://root.cern.ch/git/clang.git clang && \
-                            cd clang )
-
-                    tar cJf $CACHE_DIR/$TARFILE $UNTARDIR
-                else
-                    if [ "$CLANG_USES_SVN" -eq 1 ]; then
-                        #http://llvm.org/docs/GettingStarted.html#checkout
-                        svn co -q "http://llvm.org/svn/llvm-project/${pkg}/trunk@${CLANG_SVN_VERSION}" "${UNTARDIR}" && \
-                            tar --exclude='.svn' cJf "${CACHE_DIR}/${TARFILE}" "${UNTARDIR}" || exit 1
-                    else
-                        wget $CLANG_URL/releases/$CLANG_VERSION/$TARFILE -O $CACHE_DIR/$TARFILE || exit 1
-                    fi
-                fi
+                wget $CLANG_URL/releases/$CLANG_VERSION/$TARFILE -O $CACHE_DIR/$TARFILE
             fi
             rm -rf $UNTARDIR
-            tar xJf $CACHE_DIR/$TARFILE
+            tar xaf $CACHE_DIR/$TARFILE
         done
 
         # move to respective places
@@ -98,13 +78,11 @@ if [ ! -e $INSTALL_DIR/clang.done ]; then
         CLANG_ENV="$CLANG_ENV \
                        PATH=\"${INSTALL_DIR}/bin:$PATH\" \
                        LD_LIBRARY_PATH=\"$INSTALL_DIR/lib:$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu\" \
-                       CC=$MYCC \
                        CFLAGS=\"-I$INSTALL_DIR/include\" \
-                       CPPFLAGS=\"-I$INSTALL_DIR/include\" \
-                       CXX=$MYCXX "
+                       CPPFLAGS=\"-I$INSTALL_DIR/include\" " \
         CLANG_OPTS="$CLANG_OPTS_COMMON \
-                        -DCMAKE_CXX_COMPILER=$MYCXX \
-                        -DCMAKE_C_COMPILER=$MYCC \
+                        -DCMAKE_CXX_COMPILER=$CXX \
+                        -DCMAKE_C_COMPILER=$CC \
                         -DLLVM_BUILD_TESTS=OFF \
                         -DLLVM_INCLUDE_TESTS=OFF \
                         -DLLVM_BUILD_EXAMPLES=OFF \
@@ -114,7 +92,6 @@ if [ ! -e $INSTALL_DIR/clang.done ]; then
                         -DCLANG_BUILD_TOOLS=ON"
 
         # cmake
-        create_index ${BUILD_DIR}/clang.before
         rm -rf clang-build && mkdir -p clang-build
         cd clang-build
         ( eval "$CLANG_ENV" && \

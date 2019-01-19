@@ -91,10 +91,6 @@ mkdir -p "$INSTALL_DIR"
 mkdir -p "$BUILD_DIR"
 mkdir -p "$CACHE_DIR"
 
-# Breaks if anything fails from now on
-set -e
-set -x
-
 cd $BUILD_DIR
 if [ -f "$SCRIPT_DIR/$OPSYS/script-$RELEASE.sh" ]; then
     source "$SCRIPT_DIR/$OPSYS/script-$RELEASE.sh"

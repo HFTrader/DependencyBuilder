@@ -179,13 +179,15 @@ function build_with_configure()
 #
 function build_package()
 {
+    # Breaks if anything fails from now on
     (
+    set -e
+    set -x
     PACKAGE="$1"
     BUILD_GIST="$SCRIPT_DIR/$OPSYS/build-$PACKAGE.sh"
     if [ -f  "$BUILD_GIST" ]; then
         source "$BUILD_GIST" || exit 1
     fi
-
-        build_package_$PACKAGE || exit 1
-    )
+    build_package_$PACKAGE || exit 1
+    ) || exit 1
 }
