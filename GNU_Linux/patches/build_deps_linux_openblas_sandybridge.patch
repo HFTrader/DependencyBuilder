@@ -1,0 +1,12 @@
+--- OpenBLAS-0.2.19/kernel/x86_64/dgemm_kernel_4x8_sandy.S	2016-09-01 03:58:42.000000000 +0000
++++ /tmp/dgemm_kernel_4x8_sandy.S	2017-03-10 17:32:12.975648237 +0000
+@@ -1844,7 +1844,8 @@
+ TEST	$15, %rax;
+ JNE		.L213_loopEx;
+ ALIGN_5
+-#### Writing Back ####
++//#### Writing Back ####
++
+ #ifndef	TRMMKERNEL
+ ADD_DX 0*SIZE(C0), xvec11, xvec11;
+ ADD_DX 2*SIZE(C0), xvec10, xvec10;
