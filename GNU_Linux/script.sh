@@ -23,6 +23,7 @@ build_package gmp
 build_package mpfr
 build_package mpc
 build_package gcc
+build_package python
 build_package clang
 
 # this guy cannot be compiled with clang
@@ -38,7 +39,6 @@ export CFLAGS="-O3 -march=$MYARCH -mtune=$MYARCH"
 export CXXFLAGS="-O3 -m64 -march=$MYARCH -mtune=$MYARCH"
 export FFLAGS="-O3 -march=$MYARCH -fPIC"
 
-build_package python
 
 build_package openonload
 build_package zlib
