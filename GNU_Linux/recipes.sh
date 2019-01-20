@@ -1,6 +1,12 @@
 # dependencies
 #  sudo apt-get install build-essential clang automake autoconf ninja-build ccache perl
 
+function build_package_pcre()
+{
+    download_tarfile "https://ftp.pcre.org/pub/pcre/pcre-${PCRE_VERSION}.tar.gz"
+    build_with_configure
+}
+
 function build_package_libedit()
 {
     download_tarfile  "http://thrysoee.dk/editline/libedit-${LIBEDIT_VERSION}.tar.gz"

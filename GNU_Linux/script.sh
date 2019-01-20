@@ -26,6 +26,7 @@ build_package mpfr
 build_package mpc
 build_package gcc
 build_package python
+build_package pcre
 build_package swig
 build_package libedit
 build_package clang
