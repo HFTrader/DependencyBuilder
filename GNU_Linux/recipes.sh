@@ -28,8 +28,8 @@ function build_package_gtest()
 function build_package_flex()
 {
     download_tarfile "https://github.com/westes/flex/releases/download/v${FLEX_VERSION}/flex-${FLEX_VERSION}.tar.gz"
-    ENV_ARGS="PATH=$PATH:${INSTALL_DIR}/bin" \
-      build_with_configure
+    ENV_ARGS="PATH=$PATH:${INSTALL_DIR}/bin"
+    build_with_configure
 }
 
 function build_package_bison()
@@ -44,6 +44,12 @@ function build_package_libpcap()
     ENV_ARGS="LD_LIBRARY_PATH=${INSTALL_DIR}/lib PATH=$PATH:${INSTALL_DIR}/bin" build_with_configure
 }
 
+function build_package_m4()
+{
+            download_tarfile "http://ftpmirror.gnu.org/m4/m4-${M4_VERSION}.tar.gz"
+            build_with_configure
+}
+
 function build_package_libtool()
 {
             download_tarfile "http://ftpmirror.gnu.org/libtool/libtool-${LIBTOOL_VERSION}.tar.gz"
@@ -55,12 +61,13 @@ function build_package_binutils()
             # http://www.linuxfromscratch.org/lfs/view/development/chapter05/binutils-pass1.html
             # http://llvm.org/docs/GoldPlugin.html
             download_tarfile "http://ftp.gnu.org/gnu/binutils/binutils-${BINUTILS_VERSION}.tar.gz"
-            MACHINE="$($SCRIPT_DIR/build/config.guess.GNU_Linux.sh)"
-            ENV_ARGS="PATH=$PATH:${INSTALL_DIR}/bin" \
-            CONFIGURE_ARGS="./configure --enable-gold --enable-plugins --disable-werror --target=$MACHINE --disable-werror --prefix=${INSTALL_DIR}" \
-            MAKE_ARGS="make -j$NUMJOBS all-gold && make -j$NUMJOBS all" \
-            INSTALL_ARGS="make install && make install-gold" \
-                build_with_configure
+            MACHINE="$($SCRIPT_DIR/$OPSYS/config.guess.sh)"
+            ENV_ARGS="PATH=$PATH:${INSTALL_DIR}/bin"
+            CONFIGURE_ARGS="./configure --enable-plugins --disable-werror --target=$MACHINE \
+                            --prefix=${INSTALL_DIR}"
+            MAKE_ARGS="make -j$NUMJOBS all-gold && make -j$NUMJOBS all"
+            INSTALL_ARGS="make install "
+            build_with_configure
 }
 
 function build_package_python()
@@ -173,6 +180,16 @@ function build_package_libcurl()
                     build_with_configure
 }
 
+function build_package_ninja()
+{
+    download_tarfile "https://github.com/ninja-build/ninja/archive/v${NINJA_VERSION}.tar.gz" \
+                     "ninja-${NINJA_VERSION}.tar.gz"
+    CONFIGURE_ARGS="./configure.py --bootstrap"
+    MAKE_ARGS="true"
+    INSTALL_ARGS="mkdir -p ${INSTALL_DIR}/bin && cp -v ninja ${INSTALL_DIR}/bin"
+    build_with_configure
+}
+
 function build_package_sasl()
 {
     (
@@ -206,8 +223,8 @@ function build_package_openblas()
             TARFILE="OpenBLAS-${OPENBLAS_VERSION}.tar.gz"
             DIRNAME="OpenBLAS-${OPENBLAS_VERSION}"
             download_tarfile
-            CONFIGURE_ARGS="( cd $BUILD_DIR/$DIRNAME; patch --verbose kernel/x86_64/dgemm_kernel_4x8_sandy.S < \
-                              $SCRIPT_DIR/build/patches/build_deps_linux_openblas_sandybridge.patch )" \
+            CONFIGURE_ARGS="( cd $BUILD_DIR/$DIRNAME; patch --verbose kernel/x86_64/dgemm_kernel_4x8_sandy.S \
+                              < $SCRIPT_DIR/$OPSYS/patches/openblas_sandybridge.patch )" \
                           MAKE_ARGS="make -j$NUMJOBS PREFIX=${INSTALL_DIR} BINARY=64 DYNAMIC_ARCH=1 USE_THREADS=1 NUM_THREADS=8 CC=$MYCC" \
                           INSTALL_ARGS="make PREFIX=${INSTALL_DIR} install" \
                           build_with_configure
@@ -457,7 +474,7 @@ function build_package_qt5()
                               -I${INSTALL_DIR}/include \
                               -I${INSTALL_DIR}/include/openssl \
                               -L${INSTALL_DIR}/lib \
-                              -platform linux-clang-libc++ " \
+                              -platform linux-clang " \
                 build_with_configure
 }
 

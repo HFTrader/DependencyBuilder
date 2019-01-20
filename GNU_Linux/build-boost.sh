@@ -46,7 +46,6 @@ EOF
              --with-python-root=${INSTALL_DIR} || exit 1
     fi
 
-    create_index ${BUILD_DIR}/boost.before
     ( CXXFLAGS="$CXXFLAGS -I${INSTALL_DIR}/include" CFLAGS="$CFLAGS -I${INSTALL_DIR}/include" \
       PATH=${INSTALL_DIR}/bin:$PATH LD_LIBRARY_PATH=${INSTALL_DIR}/lib:$LD_LIBRARY_PATH \
       ./b2 -q -a -j$NUMJOBS --layout=tagged --build-type=minimal --prefix="${INSTALL_DIR}"  \
@@ -56,8 +55,6 @@ EOF
     ) > $BUILD_DIR/boost.log 2> $BUILD_DIR/boost.err \
         || exit 1
 
-    create_index ${BUILD_DIR}/boost.after
-    create_manifest ${BUILD_DIR}/boost.before ${BUILD_DIR}/boost.after ${INSTALL_DIR}/boost.manifest
     rm -f ${BUILD_DIR}/boost.before ${BUILD_DIR}/boost.after
     rm -rf ${BUILD_DIR}/$BOOST_DIR
 fi

@@ -42,7 +42,7 @@ function download_tarfile()
         DIRNAME="${PACKAGE}-${VERSION}"
     elif [ $# -eq 2 ]; then
         # first pass to get the URLPATH
-        parse_url "$1"
+        parse_url $1
         TARFILE="$2"
         read PACKAGE VERSION EXT <<< $(echo "$TARFILE" | sed "s/\(.*\)-\(.*\).\(tar.gz\|tar.xz\|tar.bz2\|tgz\)/\1 \2 \3/" )
         DIRNAME=${TARFILE%.$EXT}
@@ -58,22 +58,6 @@ function download_tarfile()
     return 0
 }
 
-#
-# Uses the package's manifest to remove old files from the install directory
-#
-function remove_files()
-{
-    echo "Removing files on package $PACKAGE"
-    cat "${INSTALL_DIR}/$PACKAGE.manifest" | sort -r | \
-        ( set +x; while read fn; do
-              if [ -f "$fn" ]; then rm -fv $fn; fi
-              # TODO this line is not working
-              # this should remove only the empty directories
-              if [ -d "$fn" ]; then
-                  find $fn -maxdepth 0 -type d -empty -print0 | xargs -0 -i echo "Empty: $(ls {} )"
-              fi
-          done )
-}
 
 #
 # Builds a package following the user configuration. This is the workhorse of all the build system
@@ -119,27 +103,25 @@ function build_generic()
             echo "Tar file name is empty. Bailing out"
             exit 1
         fi
-        if [ -z "$EXT" ]; then
-            echo "Extension is empty. Bailing out"
-            exit 1
-        fi
 
         # create build directory
-        echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
-        ( rm -rf "$BUILD_DIR/$DIRNAME" && tar xaf "$CACHE_DIR/$TARFILE" -C "${BUILD_DIR}" ) \
-            || exit 1
+        set -x
+        rm -rf "$BUILD_DIR/$DIRNAME"
+        tar xaf "$CACHE_DIR/$TARFILE" -C "${BUILD_DIR}"
+        mkdir -p $TMPDIR
+        cd $TMPDIR
 
-        mkdir -p $TMPDIR && cd $TMPDIR || exit 1
-
-        ( eval "$MYENV_ARGS" && \
-          eval "$CONFIGURE_ARGS" && \
-          eval "$MAKE_ARGS" && \
-          eval "$INSTALL_ARGS" && \
-          echo $(date +%Y%m%d-%H%M%S) > ${INSTALL_DIR}/${PACKAGE}.done \
+        echo "Compiling $PACKAGE $VERSION"
+        ( set -x
+          set -e
+          eval "$MYENV_ARGS"
+          eval "$CONFIGURE_ARGS"
+          eval "$MAKE_ARGS"
+          eval "$INSTALL_ARGS"
+          echo $(date +%Y%m%d-%H%M%S) > ${INSTALL_DIR}/${PACKAGE}.done
         ) > ${BUILD_DIR}/${PACKAGE}.log 2> ${BUILD_DIR}/${PACKAGE}.err \
             || exit 1
-        create_index ${BUILD_DIR}/${PACKAGE}.after
-        create_manifest ${BUILD_DIR}/${PACKAGE}.before ${BUILD_DIR}/${PACKAGE}.after ${INSTALL_DIR}/${PACKAGE}.manifest
+
         rm -f ${BUILD_DIR}/${PACKAGE}.before ${BUILD_DIR}/${PACKAGE}.after
         rm -rf "$BUILD_DIR/$DIRNAME"
     fi
@@ -181,13 +163,12 @@ function build_package()
 {
     # Breaks if anything fails from now on
     (
-    set -e
-    set -x
-    PACKAGE="$1"
-    BUILD_GIST="$SCRIPT_DIR/$OPSYS/build-$PACKAGE.sh"
-    if [ -f  "$BUILD_GIST" ]; then
-        source "$BUILD_GIST" || exit 1
-    fi
-    build_package_$PACKAGE || exit 1
+        set -e
+        PACKAGE="$1"
+        BUILD_GIST="$SCRIPT_DIR/$OPSYS/build-$PACKAGE.sh"
+        if [ -f  "$BUILD_GIST" ]; then
+            source "$BUILD_GIST"
+        fi
+        build_package_$PACKAGE
     ) || exit 1
 }

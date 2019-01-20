@@ -6,6 +6,7 @@ CXX=${CXX:-g++}
 echo "Compilers: $CC $CXX"
 
 # This is only necessary so we get the latest and greatest to build the rest
+build_package m4
 build_package bison
 build_package flex
 build_package libpcap
@@ -13,6 +14,7 @@ build_package libtool
 build_package binutils
 build_package autoconf
 build_package automake
+build_package ninja
 build_package cmake
 build_package ncurses
 #build_package gtest
