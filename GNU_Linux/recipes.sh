@@ -4,14 +4,14 @@
 function build_package_yasm()
 {
     download_tarfile "http://www.tortall.net/projects/yasm/releases/yasm-${YASM_VERSION}.tar.gz"
-    CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR}¨ " \
+    CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR} " \
     build_with_configure
 }
 
 function build_package_nasm()
 {
-    download_tarfile "https://www.nasm.us/pub/nasm/releasebuilds/2.14.02/nasm-${NASM_VERSION}.tar.gz"
-    CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR}¨ " \
+    download_tarfile "https://www.nasm.us/pub/nasm/releasebuilds/${NASM_VERSION}/nasm-${NASM_VERSION}.tar.gz"
+    CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR} " \
     build_with_configure
 }
 
@@ -73,11 +73,17 @@ function build_package_binutils()
 function build_package_python()
 {
             download_tarfile "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz"
-            PYTHON_ARGS="-C  --enable-shared --enable-optimizations --enable-unicode=ucs4 \
-                         --with-dbmliborder=bdb:gdbm --with-system-expat --with-computed-gotos" \
-            ENV_ARGS="CFLAGS='-DNDEBUG -DPy_NDEBUG' " \
-            CONFIGURE_ARGS="./configure $PYTHON_ARGS --prefix=${INSTALL_DIR}" \
-                build_with_configure
+            PYTHON_ARGS="-C  \
+                         --enable-shared \
+                         --enable-optimizations \
+                         --enable-unicode=ucs4 \
+                         --with-dbmliborder=bdb:gdbm \
+                         --with-system-expat \
+                         --with-computed-gotos"
+            CFLAGS="-DNDEBUG -DPy_NDEBUG"
+            CPPFLAGS="-I${INSTALL_DIR}/include/ncurses"
+            CONFIGURE_ARGS="./configure $PYTHON_ARGS --prefix=${INSTALL_DIR}"
+            build_with_configure
 }
 
 function build_package_autoconf()
