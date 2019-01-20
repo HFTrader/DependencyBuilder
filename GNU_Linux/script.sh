@@ -5,7 +5,9 @@ CC=${CC:-gcc}
 CXX=${CXX:-g++}
 echo "Compilers: $CC $CXX"
 
+# install swig, libedit
 # This is only necessary so we get the latest and greatest to build the rest
+build_package coreutils
 build_package m4
 build_package bison
 build_package flex
@@ -24,6 +26,8 @@ build_package mpfr
 build_package mpc
 build_package gcc
 build_package python
+build_package swig
+build_package libedit
 build_package clang
 
 # this guy cannot be compiled with clang

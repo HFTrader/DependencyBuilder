@@ -1,10 +1,28 @@
 # dependencies
 #  sudo apt-get install build-essential clang automake autoconf ninja-build ccache perl
 
+function build_package_libedit()
+{
+    download_tarfile  "http://thrysoee.dk/editline/libedit-${LIBEDIT_VERSION}.tar.gz"
+    build_with_configure
+}
+
+function build_package_swig()
+{
+    download_tarfile "http://prdownloads.sourceforge.net/swig/swig-${SWIG_VERSION}.tar.gz"
+    build_with_configure
+}
+
+
+function build_package_coreutils()
+{
+    download_tarfile "https://ftp.gnu.org/gnu/coreutils/coreutils-${COREUTILS_VERSION}.tar.xz"
+    build_with_configure
+}
+
 function build_package_yasm()
 {
     download_tarfile "http://www.tortall.net/projects/yasm/releases/yasm-${YASM_VERSION}.tar.gz"
-    CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR} " \
     build_with_configure
 }
 
