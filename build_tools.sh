@@ -48,7 +48,11 @@ function download_tarfile()
         DIRNAME=${TARFILE%.$EXT}
     else
         # all these variables have to be set: PACKAGE  URL VERSION  EXT  TARFILE  DIRNAME
-        echo "Package:[$PACKAGE] Version:[$VERSION] Url:[$URL] Extension:[$EXT] Tarfile:[$TARFILE] Dirname:[$DIRNAME]"
+        if [ -z "$PACKAGE"  ] || [ -z "$VERSION" ] || [ -z "$URL" ] || [ -z "EXT" ] || [ -z "$TARFILE" ] || [ -z "$DIRNAME" ]; then
+            echo "One of these variables are empty"
+            echo "Package:[$PACKAGE] Version:[$VERSION] Url:[$URL] Extension:[$EXT] Tarfile:[$TARFILE] Dirname:[$DIRNAME]"
+            exit 1
+        fi
     fi
 
     if [ ! -e "$CACHE_DIR/$TARFILE" ]; then
@@ -68,21 +72,11 @@ function build_generic()
 {
     # Precondition: PACKAGE VERSION URL EXT TARFILE DIRNAME
     # Optional
-    if [ -z "$ENV_ARGS" ]; then
-        local MYENV_ARGS="true"
-    else
-        local MYENV_ARGS="export $ENV_ARGS"
-    fi
-    if [ -z "$CONFIGURE_ARGS" ]; then
-        local CONFIGURE_ARGS="nice ./configure --prefix=${INSTALL_DIR}"
-    fi
+    ENV_ARGS=${ENV_ARGS:-true}
+    CONFIGURE_ARGS=${CONFIGURE_ARGS:-"./configure --prefix=${INSTALL_DIR}"}
+    MAKE_ARGS=${MAKE_ARGS:-"make -j$NUMJOBS"}
+    INSTALL_ARGS=${INSTALL_ARGS:-"make install"}
 
-    if [ -z "$MAKE_ARGS" ]; then
-        local MAKE_ARGS="nice make -j$NUMJOBS"
-    fi
-    if [ -z "$INSTALL_ARGS" ]; then
-        local INSTALL_ARGS="nice make install"
-    fi
     # Mandatory
     if [ -z "$PACKAGE" ]; then
         echo "Package name is empty. Bailing out"
@@ -105,25 +99,25 @@ function build_generic()
         fi
 
         # create build directory
-        set -x
         rm -rf "$BUILD_DIR/$DIRNAME"
         tar xaf "$CACHE_DIR/$TARFILE" -C "${BUILD_DIR}"
         mkdir -p $TMPDIR
         cd $TMPDIR
 
-        echo "Compiling $PACKAGE $VERSION"
-        ( set -x
-          set -e
-          eval "$MYENV_ARGS"
-          eval "$CONFIGURE_ARGS"
-          eval "$MAKE_ARGS"
-          eval "$INSTALL_ARGS"
-          echo $(date +%Y%m%d-%H%M%S) > ${INSTALL_DIR}/${PACKAGE}.done
-        ) > ${BUILD_DIR}/${PACKAGE}.log 2> ${BUILD_DIR}/${PACKAGE}.err \
-            || exit 1
+        echo ">>>>>>>>>>>>> Compiling $PACKAGE $VERSION" >&2
+        echo "ENV: $(echo "$ENV_ARGS" | tr -s ' ')" >&2
+        echo "CONF: $(echo "$CONFIGURE_ARGS" | tr -s ' ') " >&2
+        echo "MAKE: $(echo "$MAKE_ARGS" | tr -s ' ') " >&2
+        echo "INST: $(echo "$INSTALL_ARGS" | tr -s ' ') " >&2
+        (
+            eval "$ENV_ARGS" && \
+            eval "$CONFIGURE_ARGS" && \
+            eval "$MAKE_ARGS" && \
+            eval "$INSTALL_ARGS" && \
+            echo $(date +%Y%m%d-%H%M%S) > ${INSTALL_DIR}/${PACKAGE}.done && \
+            rm -rf "$BUILD_DIR/$DIRNAME"
+        ) > ${BUILD_DIR}/${PACKAGE}.log 2> ${BUILD_DIR}/${PACKAGE}.err
 
-        rm -f ${BUILD_DIR}/${PACKAGE}.before ${BUILD_DIR}/${PACKAGE}.after
-        rm -rf "$BUILD_DIR/$DIRNAME"
     fi
     #echo "[$PACKAGE] [$VERSION] [$URL] [$EXT]  [$TARFILE]  [$DIRNAME]"
 }
@@ -133,15 +127,11 @@ function build_generic()
 #
 function build_with_cmake()
 {
-    (
-    local TMPDIR=${TMPDIR:-"$BUILD_DIR/$DIRNAME/build-tmp"}
-    local ADDL_ARGS="-DCMAKE_INSTALL_PREFIX=\"${INSTALL_DIR}\" \
-               -DCMAKE_BUILD_TYPE=Release "
-    local MAKE_ARGS=${MAKE_ARGS:-"cmake --build ."}
-    local INSTALL_ARGS=${INSTALL_ARGS:-"cmake --build . --target install"}
-    local CONFIGURE_ARGS="cmake -G $CMAKE_BUILDER $CONFIGURE_ARGS $ADDL_ARGS .."
+    TMPDIR=${TMPDIR:-"$BUILD_DIR/$DIRNAME/build-tmp"}
+    MAKE_ARGS=${MAKE_ARGS:-"cmake --build ."}
+    INSTALL_ARGS=${INSTALL_ARGS:-"cmake --build . --target install"}
+    CONFIGURE_ARGS=${CONFIGURE_ARGS:-"cmake -G \"$CMAKE_BUILDER\" -DCMAKE_INSTALL_PREFIX=\"${INSTALL_DIR}\" -DCMAKE_BUILD_TYPE=Release ${BUILD_DIR}/${DIRNAME} " }
     build_generic $*
-    )
 }
 
 #
@@ -149,10 +139,8 @@ function build_with_cmake()
 #
 function build_with_configure()
 {
-    (
-    local TMPDIR=${TMPDIR:-"${BUILD_DIR}/${DIRNAME}"}
+    TMPDIR=${TMPDIR:-"${BUILD_DIR}/${DIRNAME}"}
     build_generic $*
-    )
 }
 
 #
@@ -163,7 +151,6 @@ function build_package()
 {
     # Breaks if anything fails from now on
     (
-        set -e
         PACKAGE="$1"
         BUILD_GIST="$SCRIPT_DIR/$OPSYS/build-$PACKAGE.sh"
         if [ -f  "$BUILD_GIST" ]; then

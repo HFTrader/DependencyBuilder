@@ -16,16 +16,20 @@ build_package libtool
 build_package binutils
 build_package autoconf
 build_package automake
-build_package ninja
 build_package cmake
 build_package ncurses
-#build_package gtest
+build_package gtest
 build_package libelf
 build_package gmp
 build_package mpfr
 build_package mpc
 build_package gcc
 build_package python
+build_package ninja
+build_package pkgconfig
+
+export CMAKE_BUILDER=Ninja
+
 build_package pcre
 build_package swig
 build_package libedit
@@ -37,13 +41,14 @@ build_package openonload
 # Now we set the flags and ready to cross compile
 export CC="${INSTALL_DIR}/bin/clang" #${MYCC}"
 export CXX="${INSTALL_DIR}/bin/clang++" #"${MYCXX}"
+export FC="${INSTALL_DIR}/bin/gfortran-${GCC_VERSION}"
 export PATH="${INSTALL_DIR}/bin:$PATH"
 #export LD_LIBRARY_PATH="${INSTALL_DIR}/lib:$LD_LIBRARY_PATH"
-export LDFLAGS="-L${INSTALL_DIR}/lib"
-export CFLAGS="-O3 -march=$MYARCH -mtune=$MYARCH"
-export CXXFLAGS="-O3 -m64 -march=$MYARCH -mtune=$MYARCH"
-export FFLAGS="-O3 -march=$MYARCH -fPIC"
-
+export LDFLAGS="-L${INSTALL_DIR}/lib -L${INSTALL_DIR}/lib64"
+export CFLAGS="-O3 -m64 " #-march=$MYARCH -mtune=$MYARCH"
+export CXXFLAGS="-O3 -m64 " #-march=$MYARCH -mtune=$MYARCH"
+export FFLAGS="-O3 -fPIC " #-march=$MYARCH -fPIC"
+export PKG_CONFIG_PATH="${INSTALL_DIR}/lib/pkgconfig:${INSTALL_DIR}/lib64/pkgconfig:$PKG_CONFIG_PATH"
 
 build_package openonload
 build_package zlib
@@ -55,7 +60,7 @@ build_package openssl
 build_package libcurl
 #build_package sasl
 build_package boost
-CMAKE_BUILDER="'Unix Makefiles'" build_package lapack  # Some Ninja/Fortran incompatibility :(
+CMAKE_BUILDER="Unix Makefiles" build_package lapack  # Some Ninja/Fortran incompatibility :(
 build_package openblas
 build_package arpack
 build_package armadillo

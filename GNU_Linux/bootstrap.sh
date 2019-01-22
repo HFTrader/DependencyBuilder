@@ -9,8 +9,8 @@ if [ -z "$MYFC" ]; then
     echo "Fortran compiler not found"
 fi
 
-CFLAGS="-O3 -m64 -march=$MYARCH -mtune=$MYARCH"
-CXXFLAGS="-O3 -m64 -march=$MYARCH -mtune=$MYARCH"
+CFLAGS="-O3 -m64 " #-march=$MYARCH -mtune=$MYARCH"
+CXXFLAGS="-O3 -m64 " #-march=$MYARCH -mtune=$MYARCH"
 
 HYPERTHREADED=$(sed -rn 's/flags\s+:.*\b(hta)\b.*/\1/p' /proc/cpuinfo)
 NUMPROCS=$(grep processor /proc/cpuinfo | wc -l )

@@ -51,20 +51,17 @@ if [ ! -e $INSTALL_DIR/clang.done ]; then
         #mv -v libcxxabi-${CLANG_ID}.src $CLANG_DIR/projects/libcxxabi
         mv -v compiler-rt-${CLANG_ID}.src $CLANG_DIR/projects/compiler-rt
 
-        CLANG_ENV="export a=1 "
-        CLANG_OPTS_COMMON="-DCMAKE_INSTALL_PREFIX=$INSTALL_DIR  \
-                           -DLLVM_TARGETS_TO_BUILD=X86 \
-                           -DLLVM_ENABLE_PIC=ON \
-                           -DLLVM_PARALLEL_COMPILE_JOBS=$NUMJOBS \
-                           -DLLVM_PARALLEL_LINK_JOBS=$NUMJOBS \
-                           -DCMAKE_CXX_LINK_FLAGS=-L$INSTALL_DIR/lib \
-                           -DCMAKE_CXX_FLAGS=-I$INSTALL_DIR/include \
-                           -DCMAKE_BUILD_TYPE=Release"
+        export PATH="${INSTALL_DIR}/bin:$PATH"
+        export LD_LIBRARY_PATH="$INSTALL_DIR/lib:$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu"
+        export CFLAGS="-I$INSTALL_DIR/include -I$INSTALL_DIR/include/ncurses"
+        export CPPFLAGS="-I$INSTALL_DIR/include -I$INSTALL_DIR/include/ncurses"
+        export CXX_FLAGS="-I$INSTALL_DIR/include -I$INSTALL_DIR/include/ncurses"
+
+        CLANG_OPTS_CCACHE=""
         if [ -n "$USE_CCACHE" ]; then
-            CLANG_OPTS_COMMON="$CLANG_OPTS_COMMON \
-                           -DLLVM_CCACHE_BUILD=ON \
-                           -DLLVM_CCACHE_DIR=$BUILD_DIR/ccache \
-                           -DCCACHE_PROGRAM=$(which ccache)"
+            CLANG_OPTS_CCACHE="-DLLVM_CCACHE_BUILD=ON \
+                               -DLLVM_CCACHE_DIR=$BUILD_DIR/ccache \
+                               -DCCACHE_PROGRAM=$(which ccache)"
         fi
         # -DLIBCXX_LIBCXXABI_WHOLE_ARCHIVE=on -DLIBCXXABI_ENABLE_SHARED=off"
         #CLANG_OPTS_COMMON="$CLANG_OPTS_COMMON -DCMAKE_CXX_LINK_FLAGS=\"-L${HOST_GCC}/lib64 -Wl,-rpath,${HOST_GCC}/lib64\" "
@@ -75,30 +72,41 @@ if [ ! -e $INSTALL_DIR/clang.done ]; then
         mv -v lldb-${CLANG_ID}.src $CLANG_DIR/tools/lldb
         mv -v polly-${CLANG_ID}.src $CLANG_DIR/tools/polly
 
-        CLANG_ENV="$CLANG_ENV \
-                       PATH=\"${INSTALL_DIR}/bin:$PATH\" \
-                       LD_LIBRARY_PATH=\"$INSTALL_DIR/lib:$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu\" \
-                       CFLAGS=\"-I$INSTALL_DIR/include\" \
-                       CPPFLAGS=\"-I$INSTALL_DIR/include\" " \
-        CLANG_OPTS="$CLANG_OPTS_COMMON \
-                        -DCMAKE_CXX_COMPILER=$CXX \
-                        -DCMAKE_C_COMPILER=$CC \
-                        -DLLVM_BUILD_TESTS=OFF \
-                        -DLLVM_INCLUDE_TESTS=OFF \
-                        -DLLVM_BUILD_EXAMPLES=OFF \
-                        -DLLVM_INCLUDE_EXAMPLES=OFF \
-                        -DCLANG_BUILD_EXAMPLES=OFF \
-                        -DCMAKE_SHARED_LINKER_FLAGS=\"-L${INSTALL_DIR}/lib\"
-                        -DCLANG_BUILD_TOOLS=ON"
-
         # cmake
         rm -rf clang-build && mkdir -p clang-build
         cd clang-build
-        ( eval "$CLANG_ENV" && \
-          cmake -G "$CMAKE_BUILDER" $CLANG_OPTS $BUILD_DIR/$CLANG_DIR && \
-          time cmake --build . -- -j$NUMJOBS && \
-          cmake --build . --target install && \
-          echo $(date +%Y%m%d-%H%M%S) > $INSTALL_DIR/clang.done \
+        (
+            eval "$CLANG_ENV" && \
+            cmake -G "$CMAKE_BUILDER"  \
+                  -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR  \
+                  -DCMAKE_EXPORT_COMMANDS=ON \
+                  -DLLVM_ENABLE_SPHINX=OFF \
+                  -DLLVM_INSTALL_UTILS=ON \
+                  -DLLVM_TARGETS_TO_BUILD=X86 \
+                  -DLLVM_ENABLE_THREADS=ON \
+                  -DLLVM_ENABLE_PIC=ON \
+                  -DLLVM_PARALLEL_COMPILE_JOBS=$NUMJOBS \
+                  -DLLVM_PARALLEL_LINK_JOBS=$NUMJOBS \
+                  -DCMAKE_CXX_LINK_FLAGS=-L$INSTALL_DIR/lib \
+                  -DCMAKE_CXX_FLAGS="$CXX_FLAGS" \
+                  -DCMAKE_BUILD_TYPE=Release \
+                  -DCMAKE_CXX_COMPILER=$CXX \
+                  -DCMAKE_C_COMPILER=$CC \
+                  -DLLVM_BUILD_TESTS=OFF \
+                  -DLLVM_INCLUDE_TESTS=OFF \
+                  -DLLVM_BUILD_EXAMPLES=OFF \
+                  -DLLVM_INCLUDE_EXAMPLES=OFF \
+                  -DCLANG_BUILD_EXAMPLES=OFF \
+                  -DBUILD_SHARED_LIBS=ON \
+                  -DCMAKE_SHARED_LINKER_FLAGS="-L${INSTALL_DIR}/lib" \
+                  -DCLANG_BUILD_TOOLS=ON \
+                  -DCMAKE_POLICY_DEFAULT_CMP0056=NEW \
+                  -DCMAKE_POLICY_DEFAULT_CMP0058=NEW \
+                  $CLANG_OPTS_CCACHE \
+                  $BUILD_DIR/$CLANG_DIR && \
+            time cmake --build . -- -j$NUMJOBS && \
+            cmake --build . --target install && \
+            echo $(date +%Y%m%d-%H%M%S) > $INSTALL_DIR/clang.done \
         ) > $BUILD_DIR/clang.log 2> $BUILD_DIR/clang.err || exit 1
 
         rm -f ${BUILD_DIR}/clang.$STAGE.before ${BUILD_DIR}/clang.after
