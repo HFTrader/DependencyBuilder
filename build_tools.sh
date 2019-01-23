@@ -13,7 +13,7 @@
 function parse_url()
 {
     URL="$1"
-    read  URLPATH PACKAGE VERSION EXT <<< $(echo "$1" | sed "s/\(.*\)\/\(.*\)-\(.*\).\(tar.gz\|tar.xz\|tar.bz2\|tgz\)/\1 \2 \3 \4/")
+    read  URLPATH PACKAGE VERSION EXT <<< $(echo "$1" | sed "s/\(.*\)\/\(.*\)-\(.*\).\(zip\|tar.gz\|tar.xz\|tar.bz2\|tgz\)/\1 \2 \3 \4/")
 }
 
 #
@@ -44,7 +44,7 @@ function download_tarfile()
         # first pass to get the URLPATH
         parse_url $1
         TARFILE="$2"
-        read PACKAGE VERSION EXT <<< $(echo "$TARFILE" | sed "s/\(.*\)-\(.*\).\(tar.gz\|tar.xz\|tar.bz2\|tgz\)/\1 \2 \3/" )
+        read PACKAGE VERSION EXT <<< $(echo "$TARFILE" | sed "s/\(.*\)-\(.*\).\(zip\|tar.gz\|tar.xz\|tar.bz2\|tgz\)/\1 \2 \3/" )
         DIRNAME=${TARFILE%.$EXT}
     else
         # all these variables have to be set: PACKAGE  URL VERSION  EXT  TARFILE  DIRNAME
@@ -100,7 +100,7 @@ function build_generic()
 
         # create build directory
         rm -rf "$BUILD_DIR/$DIRNAME"
-        tar xaf "$CACHE_DIR/$TARFILE" -C "${BUILD_DIR}"
+        tar xaf "$CACHE_DIR/$TARFILE" -C "${BUILD_DIR}" || ( cd ${BUILD_DIR}; unzip "$CACHE_DIR/$TARFILE" )
         mkdir -p $TMPDIR
         cd $TMPDIR
 

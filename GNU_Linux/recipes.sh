@@ -1,6 +1,14 @@
 # dependencies
 #  sudo apt-get install build-essential clang automake autoconf ninja-build ccache perl
 
+function build_package_sfml()
+{
+    download_tarfile "https://www.sfml-dev.org/files/SFML-${SFML_VERSION}-sources.zip" \
+                     "SFML-${SFML_VERSION}.zip"
+
+    build_with_cmake
+}
+
 function build_package_pkgconfig()
 {
     download_tarfile "https://pkg-config.freedesktop.org/releases/pkg-config-${PKGCONFIG_VERSION}.tar.gz"
@@ -225,7 +233,7 @@ function build_package_openssl()
 function build_package_libcurl()
 {
     download_tarfile "https://curl.haxx.se/download/curl-${CURL_VERSION}.tar.gz"
-    CURL_OPTS="--with-zlib=${INSTALL_DIR} --with-ssl=${INSTALL_DIR} --disable-dependency-tracking \
+    CURL_OPTS="--with-zlib=${INSTALL_DIR} --with-ssl=${INSTALL_DIR}/openssl-${OPENSSL_VERSION} --disable-dependency-tracking \
                --disable-symbol-hiding --disable-hidden-symbols --enable-threaded-resolver \
                --with-zsh-functions-dir=/usr/share/zsh/vendor-completions --disable-ldap \
                --disable-ldaps --with-cyassl=${INSTALL_DIR} "
@@ -444,7 +452,7 @@ function build_package_mongo-c-driver()
                     -DCMAKE_INSTALL_PREFIX=\"${INSTALL_DIR}\" \
                     -DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF \
                     -DENABLE_SSL=OPENSSL \
-                    -DOPENSSL_ROOT_DIR=${INSTALL_DIR} \
+                    -DOPENSSL_ROOT_DIR=${INSTALL_DIR}/openssl-${OPENSSL_VERSION} \
                     -DBSON_ROOT_DIR=\"${INSTALL_DIR}\" \
                     -DCMAKE_CXX_COMPILER=$CXX \
                     -DCMAKE_C_COMPILER=$CC \
@@ -560,7 +568,8 @@ function build_package_qt5()
                               -nomake examples -nomake tests  \
                               -make libs -openssl-runtime \
                               -I${INSTALL_DIR}/include \
-                              -I${INSTALL_DIR}/include/openssl \
+                              -I${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/include \
+                              -I${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/include/openssl \
                               -L${INSTALL_DIR}/lib \
                               -platform linux-clang "
     build_with_configure
