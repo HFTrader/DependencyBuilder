@@ -55,6 +55,9 @@ CC=${CC:-$(which clang)}
 CXX=${CXX:-$(which clang++)}
 CC=${CC:-$(which clang)}
 
+# Build directory
+BUILD_DIR=${BUILD_DIR:-$PWD}
+
 # Release defaults to "default"
 RELEASE=${RELEASE:-"default"}
 OPSYS="${OPSYS:-$(uname -o)}"

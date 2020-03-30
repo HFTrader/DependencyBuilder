@@ -237,8 +237,8 @@ function build_package_libcurl()
                --disable-symbol-hiding --disable-hidden-symbols --enable-threaded-resolver \
                --with-zsh-functions-dir=/usr/share/zsh/vendor-completions --disable-ldap \
                --disable-ldaps --with-cyassl=${INSTALL_DIR} "
-    export CC=$MYCC
-    export CXX=$MYCXX
+    #export CC=$MYCC
+    #export CXX=$MYCXX
     export LD_LIBRARY_PATH=${INSTALL_DIR}/lib:${INSTALL_DIR}/lib64:$LD_LIBRARY_PATH
     CONFIGURE_ARGS="./configure --with-zlib=${INSTALL_DIR} $CURL_OPTS --prefix=${INSTALL_DIR}"
     build_with_configure
@@ -269,9 +269,9 @@ function build_package_lapack()
 {
     download_tarfile "http://www.netlib.org/lapack/lapack-${LAPACK_VERSION}.tgz"
     LAPACK_OPTS="-DCMAKE_INCLUDE_PATH=${INSTALL_DIR} \
-                         -DCMAKE_CXX_COMPILER=$MYCXX         \
-                         -DCMAKE_C_COMPILER=$MYCC            \
-                         -DCMAKE_Fortran_COMPILER=$MYFC      \
+                         -DCMAKE_CXX_COMPILER=$CXX         \
+                         -DCMAKE_C_COMPILER=$CC            \
+                         -DCMAKE_Fortran_COMPILER=$FC      \
                          -DBUILD_SHARED_LIBS=ON "
     export LD_LIBRARY_PATH=${INSTALL_DIR}/lib
     CONFIGURE_ARGS="cmake -G \"$CMAKE_BUILDER\" -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} -DCMAKE_BUILD_TYPE=Release \
@@ -349,8 +349,8 @@ function build_package_yaml-cpp()
                             -DCMAKE_C_FLAGS=\"$CFLAGS\" \
                             -DCMAKE_CXX_FLAGS=\"$CXXFLAGS\" \
                             -DBOOST_ROOT=\"${BUILD_DIR}/boost_${BOOST_VERSION//./_}\" \
-                            -DCMAKE_CXX_COMPILER=$MYCXX \
-                            -DCMAKE_C_COMPILER=$MYCC \
+                            -DCMAKE_CXX_COMPILER=$CXX \
+                            -DCMAKE_C_COMPILER=$CC \
                             -DBUILD_SHARED_LIBS=ON \
                             -DCMAKE_PREFIX_PATH=\"${INSTALL_DIR}\" \
                             -DCMAKE_LIBRARY_PATH=\"${INSTALL_DIR}/lib\" \
@@ -385,8 +385,8 @@ function build_package_cryptopp()
     export LD_LIBRARY_PATH=${INSTALL_DIR}/lib
     CONFIGURE_ARGS="cmake -G \"$CMAKE_BUILDER\" -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} -DCMAKE_BUILD_TYPE=Release \
                     -DCMAKE_INCLUDE_PATH=\"${INSTALL_DIR}\" \
-                    -DCMAKE_CXX_COMPILER=$MYCXX \
-                    -DCMAKE_C_COMPILER=$MYCC \
+                    -DCMAKE_CXX_COMPILER=$CXX \
+                    -DCMAKE_C_COMPILER=$CC \
                     -DBUILD_TESTING=OFF \
                     -DBUILD_SHARED_LIBS=ON \
                     ${BUILD_DIR}/${DIRNAME}"
@@ -473,8 +473,8 @@ function build_package_mongo-cxx-driver()
                     -DLIBBSON_DIR=\"${INSTALL_DIR}\" \
                     -DLIBMONGOC_DIR=\"${INSTALL_DIR}\" \
                     -DBSONCXX_POLY_USE_BOOST=1 \
-                    -DCMAKE_CXX_COMPILER=$MYCXX \
-                    -DCMAKE_C_COMPILER=$MYCC \
+                    -DCMAKE_CXX_COMPILER=$CXX \
+                    -DCMAKE_C_COMPILER=$CC \
                     -DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF \
                     -DBUILD_SHARED_LIBS=ON \
                     -DCMAKE_PREFIX_PATH=\"${INSTALL_DIR}\" \
