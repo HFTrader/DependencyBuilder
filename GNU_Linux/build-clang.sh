@@ -17,8 +17,9 @@ function build_package_clang()
 #            -DCMAKE_C_COMPILER=$CC \
 
 if [ ! -e $INSTALL_DIR/clang.done ]; then
+    
     #http://btorpey.github.io/blog/2015/01/02/building-clang/
-    CLANG_URL="http://llvm.org"
+    CLANG_URL="https://github.com/llvm/llvm-project/" 
     CLANG_SVN_URL="http://llvm.org/svn/llvm-project/"
     CLANG_ID="$CLANG_VERSION"
     if [ "$CLANG_USES_SVN" -eq 1 ]; then
@@ -31,12 +32,13 @@ if [ ! -e $INSTALL_DIR/clang.done ]; then
         cd $BUILD_DIR
 
         # Download all necessary packages
-        PACKAGES="cfe llvm compiler-rt clang-tools-extra libunwind lld lldb openmp polly libcxx libcxxabi"
+        PACKAGES="cfe llvm compiler-rt clang-tools-extra libunwind lld lldb openmp polly" # libcxx libcxxabi"
         for pkg in $PACKAGES; do
             TARFILE="${pkg}-${CLANG_ID}.src.tar.xz"
             UNTARDIR="${pkg}-${CLANG_ID}.src"
             if [ ! -e "$CACHE_DIR/$TARFILE" ]; then
-                wget $CLANG_URL/releases/$CLANG_VERSION/$TARFILE -O $CACHE_DIR/$TARFILE
+		#releases/download/llvmorg-9.0.1/llvm-9.0.1.src.tar.xz"
+                wget $CLANG_URL/releases/download/llvmorg-$CLANG_VERSION/$TARFILE -O $CACHE_DIR/$TARFILE
             fi
             rm -rf $UNTARDIR
             tar xaf $CACHE_DIR/$TARFILE

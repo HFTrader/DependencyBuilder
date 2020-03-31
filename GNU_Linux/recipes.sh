@@ -129,10 +129,12 @@ function build_package_python()
                  --enable-unicode=ucs4 \
                  --with-dbmliborder=bdb:gdbm \
                  --with-system-expat \
+                 --with-ensurepip=install \
                  --with-computed-gotos"
     CONFIGURE_ARGS="./configure $PYTHON_ARGS --prefix=${INSTALL_DIR}"
     MAKE_ARGS="make -j$NUMJOBS build_all"
     build_with_configure
+    ${INSTALL_DIR}/bin/pip install Cheetah Markdown
 }
 
 function build_package_autoconf()
@@ -146,6 +148,8 @@ function build_package_automake()
 {
     download_tarfile "http://ftpmirror.gnu.org/automake/automake-${AUTOMAKE_VERSION}.tar.gz"
     export PATH=$PATH:${INSTALL_DIR}/bin
+    export PERL5LIB=${BUILD_DIR}/${DIRNAME}
+    export CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR}" 
     build_with_configure
 }
 
@@ -577,7 +581,7 @@ function build_package_qt5()
 
 function build_package_libelf()
 {
-    download_tarfile "http://www.mr511.de/software/libelf-${LIBELF_VERSION}.tar.gz"
+    download_tarfile "https://fossies.org/linux/misc/old/libelf-${LIBELF_VERSION}.tar.gz" 
     CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR} --disable-static "
     build_with_configure
 }

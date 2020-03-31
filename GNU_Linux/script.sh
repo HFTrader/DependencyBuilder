@@ -16,20 +16,26 @@ build_package libtool
 build_package binutils
 build_package autoconf
 build_package automake
-build_package cmake
 build_package ncurses
-build_package gtest
 build_package libelf
 build_package gmp
 build_package mpfr
 build_package mpc
 build_package gcc
+
+export CC=${INSTALL_DIR}/bin/gcc-${GCC_VERSION}
+export CXX=${INSTALL_DIR}/bin/g++-${GCC_VERSION}
+export PATH="${INSTALL_DIR}/bin:$PATH"
+export LD_LIBRARY_PATH="${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib:$LD_LIBRARY_PATH"
+
 build_package python
 build_package ninja
 build_package pkgconfig
 
 export CMAKE_BUILDER=Ninja
 
+build_package cmake
+build_package gtest
 build_package pcre
 build_package swig
 build_package libedit
@@ -43,7 +49,7 @@ export CC="${INSTALL_DIR}/bin/clang" #${MYCC}"
 export CXX="${INSTALL_DIR}/bin/clang++" #"${MYCXX}"
 export FC="${INSTALL_DIR}/bin/gfortran-${GCC_VERSION}"
 export PATH="${INSTALL_DIR}/bin:$PATH"
-#export LD_LIBRARY_PATH="${INSTALL_DIR}/lib:$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH="${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib:$LD_LIBRARY_PATH"
 export LDFLAGS="-L${INSTALL_DIR}/lib -L${INSTALL_DIR}/lib64"
 export CFLAGS="-O3 -m64 " #-march=$MYARCH -mtune=$MYARCH"
 export CXXFLAGS="-O3 -m64 " #-march=$MYARCH -mtune=$MYARCH"
