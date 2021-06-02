@@ -1,6 +1,4 @@
 # defaults to clang - if not, use gcc
-CC=$(which clang)
-CXX=$(which clang++)
 CC=${CC:-gcc}
 CXX=${CXX:-g++}
 echo "Compilers: $CC $CXX"
@@ -21,12 +19,13 @@ build_package libelf
 build_package gmp
 build_package mpfr
 build_package mpc
+build_package isl
 build_package gcc
 
 export CC=${INSTALL_DIR}/bin/gcc-${GCC_VERSION}
 export CXX=${INSTALL_DIR}/bin/g++-${GCC_VERSION}
 export PATH="${INSTALL_DIR}/bin:$PATH"
-export LD_LIBRARY_PATH="${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib:$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH="${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib:${LD_LIBRARY_PATH}"
 
 build_package python
 build_package ninja

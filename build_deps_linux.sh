@@ -94,6 +94,7 @@ mkdir -p "$INSTALL_DIR"
 mkdir -p "$BUILD_DIR"
 mkdir -p "$CACHE_DIR"
 
+#set -euxo pipefail 
 cd $BUILD_DIR
 if [ -f "$SCRIPT_DIR/$OPSYS/script-$RELEASE.sh" ]; then
     source "$SCRIPT_DIR/$OPSYS/script-$RELEASE.sh"

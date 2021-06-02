@@ -5,7 +5,6 @@ function build_package_sfml()
 {
     download_tarfile "https://www.sfml-dev.org/files/SFML-${SFML_VERSION}-sources.zip" \
                      "SFML-${SFML_VERSION}.zip"
-
     build_with_cmake
 }
 
@@ -25,18 +24,22 @@ function build_package_pcre()
 function build_package_libedit()
 {
     download_tarfile  "http://thrysoee.dk/editline/libedit-${LIBEDIT_VERSION}.tar.gz"
-    export CFLAGS="-I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/ncurses"
-    export LDFLAGS="-L${INSTALL_DIR}/lib"
+    #export CFLAGS="-I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/ncurses"
+    #export LDFLAGS="-L${INSTALL_DIR}/lib"
     #CONFIGURE_ARGS="LDFLAGS=\"$LDFLAGS\" CFLAGS=\"$CFLAGS\" ./configure --prefix=$INSTALL_DIR"
-    build_with_configure
+    CFLAGS="-I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/ncurses" \
+    LDFLAGS="-L${INSTALL_DIR}/lib" \
+        build_with_configure
 }
 
 function build_package_swig()
 {
     download_tarfile "http://prdownloads.sourceforge.net/swig/swig-${SWIG_VERSION}.tar.gz"
-    export PCRE_CONFIG=${INSTALL_DIR}/bin/pcre-config
-    export PATH=$PATH:${INSTALL_DIR}/bin
-    build_with_configure
+    #export PCRE_CONFIG=${INSTALL_DIR}/bin/pcre-config
+    #export PATH=$PATH:${INSTALL_DIR}/bin
+    PCRE_CONFIG=${INSTALL_DIR}/bin/pcre-config \
+    PATH=$PATH:${INSTALL_DIR}/bin \
+        build_with_configure
 }
 
 
@@ -68,15 +71,17 @@ function build_package_gtest()
                           ${BUILD_DIR}/${DIRNAME}"
     DIRNAME="googletest-release-${GTEST_VERSION}"
     PACKAGE="googletest"
-    export PATH=$PATH:${INSTALL_DIR}/bin
-    build_with_cmake
+    #export PATH=$PATH:${INSTALL_DIR}/bin
+    PATH=$PATH:${INSTALL_DIR}/bin \
+        build_with_cmake
 }
 
 function build_package_flex()
 {
     download_tarfile "https://github.com/westes/flex/releases/download/v${FLEX_VERSION}/flex-${FLEX_VERSION}.tar.gz"
-    export PATH=$PATH:${INSTALL_DIR}/bin
-    build_with_configure
+    #export PATH=$PATH:${INSTALL_DIR}/bin
+    PATH=$PATH:${INSTALL_DIR}/bin \
+        build_with_configure
 }
 
 function build_package_bison()
@@ -88,9 +93,11 @@ function build_package_bison()
 function build_package_libpcap()
 {
     download_tarfile "http://www.tcpdump.org/release/libpcap-${LIBPCAP_VERSION}.tar.gz"
-    export LD_LIBRARY_PATH=${INSTALL_DIR}/lib
-    export PATH=$PATH:${INSTALL_DIR}/bin
-    build_with_configure
+    #export LD_LIBRARY_PATH=${INSTALL_DIR}/lib
+    #export PATH=$PATH:${INSTALL_DIR}/bin
+    LD_LIBRARY_PATH=${INSTALL_DIR}/lib \
+    PATH=$PATH:${INSTALL_DIR}/bin \
+        build_with_configure
 }
 
 function build_package_m4()
@@ -107,23 +114,23 @@ function build_package_libtool()
 
 function build_package_binutils()
 {
-            # http://www.linuxfromscratch.org/lfs/view/development/chapter05/binutils-pass1.html
-            # http://llvm.org/docs/GoldPlugin.html
-            download_tarfile "http://ftp.gnu.org/gnu/binutils/binutils-${BINUTILS_VERSION}.tar.gz"
-            MACHINE="$($SCRIPT_DIR/$OPSYS/config.guess.sh)"
-            ENV_ARGS="export PATH=$PATH:${INSTALL_DIR}/bin"
-            CONFIGURE_ARGS="./configure --enable-plugins --disable-werror --target=$MACHINE \
-                            --prefix=${INSTALL_DIR}"
-            MAKE_ARGS="make -j$NUMJOBS all-gold && make -j$NUMJOBS all"
-            INSTALL_ARGS="make install "
-            build_with_configure
+    # http://www.linuxfromscratch.org/lfs/view/development/chapter05/binutils-pass1.html
+    # http://llvm.org/docs/GoldPlugin.html
+    download_tarfile "http://ftp.gnu.org/gnu/binutils/binutils-${BINUTILS_VERSION}.tar.gz"
+    MACHINE="$($SCRIPT_DIR/$OPSYS/config.guess.sh)"
+    ENV_ARGS="export PATH=$PATH:${INSTALL_DIR}/bin"
+    CONFIGURE_ARGS="./configure --enable-plugins --disable-werror --target=$MACHINE \
+                    --prefix=${INSTALL_DIR}"
+    MAKE_ARGS="make -j$NUMJOBS all-gold && make -j$NUMJOBS all"
+    INSTALL_ARGS="make install "
+    build_with_configure
 }
 
 function build_package_python()
 {
     download_tarfile "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz"
-    export CFLAGS="-DNDEBUG -DPy_NDEBUG"
-    export CPPFLAGS="-I${INSTALL_DIR}/include/ncurses"
+    #export CFLAGS="-DNDEBUG -DPy_NDEBUG"
+    #export CPPFLAGS="-I${INSTALL_DIR}/include/ncurses"
     PYTHON_ARGS="-C  \
                  --enable-shared \
                  --enable-unicode=ucs4 \
@@ -133,15 +140,18 @@ function build_package_python()
                  --with-computed-gotos"
     CONFIGURE_ARGS="./configure $PYTHON_ARGS --prefix=${INSTALL_DIR}"
     MAKE_ARGS="make -j$NUMJOBS build_all"
-    build_with_configure
-    ${INSTALL_DIR}/bin/pip install Cheetah Markdown
+    CFLAGS="-DNDEBUG -DPy_NDEBUG" CPPFLAGS="-I${INSTALL_DIR}/include/ncurses" \
+        build_with_configure
+    #cd ${INSTALL_DIR}
+    #${INSTALL_DIR}/bin/pip3 install --user Cheetah Markdown
 }
 
 function build_package_autoconf()
 {
     download_tarfile "http://ftpmirror.gnu.org/autoconf/autoconf-${AUTOCONF_VERSION}.tar.gz"
-    export PATH=$PATH:${INSTALL_DIR}/bin
-    build_with_configure
+    #export PATH=$PATH:${INSTALL_DIR}/bin
+    PATH=$PATH:${INSTALL_DIR}/bin \
+        build_with_configure
 }
 
 function build_package_automake()
@@ -150,7 +160,10 @@ function build_package_automake()
     export PATH=$PATH:${INSTALL_DIR}/bin
     export PERL5LIB=${BUILD_DIR}/${DIRNAME}
     export CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR}" 
-    build_with_configure
+    PATH=$PATH:${INSTALL_DIR}/bin \
+    PERL5LIB=${BUILD_DIR}/${DIRNAME} \
+    CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR}"  \
+        build_with_configure
 }
 
 function build_package_cmake()
@@ -158,16 +171,16 @@ function build_package_cmake()
     CMAKE_VERSION_SHORT=$(echo $CMAKE_VERSION | cut -d '.' -f 1-2)
     #VV=(${CMAKE_VERSION//./ })
     download_tarfile "https://cmake.org/files/v${CMAKE_VERSION_SHORT}/cmake-${CMAKE_VERSION}.tar.gz"
-    export PATH=$PATH:${INSTALL_DIR}/bin
-    build_with_configure
+    PATH=$PATH:${INSTALL_DIR}/bin \
+        build_with_configure
 }
 
 function build_package_ncurses()
 {
     download_tarfile "http://ftp.gnu.org/gnu/ncurses/ncurses-${NCURSES_VERSION}.tar.gz"
     NCURSES_ARGS='--enable-shared --with-shared --with-cpp-shared'
-    CONFIGURE_ARGS="CPPFLAGS=-P ./configure $NCURSES_ARGS --prefix=${INSTALL_DIR}" \
-                  build_with_configure
+    CONFIGURE_ARGS="CPPFLAGS=-P ./configure $NCURSES_ARGS --prefix=${INSTALL_DIR}" 
+    build_with_configure
 }
 
 function build_package_openonload()
@@ -191,27 +204,31 @@ function build_package_openonload()
                 --userfiles --nobuild --noinstallcheck || true) && \
                 rsync -av $BUILD_DIR/$DIRNAME/install_tmp/usr/ ${INSTALL_DIR}/ && \
                 rsync -av $BUILD_DIR/$DIRNAME/src/include/ ${INSTALL_DIR}/include/"
-    build_with_configure
+    CC=$(which gcc) \
+    CFLAGS="-I$INSTALL_DIR/include" \
+    LD_LIBRARY_PATH=${INSTALL_DIR}/lib \
+    PATH=${INSTALL_DIR}/bin:$PATH \
+        build_with_configure
 }
 
 function build_package_ccache()
 {
-            download_tarfile https://www.samba.org/ftp/ccache/ccache-${CCACHE_VERSION}.tar.xz
-            build_with_configure
+    download_tarfile https://www.samba.org/ftp/ccache/ccache-${CCACHE_VERSION}.tar.xz
+    build_with_configure
 }
 
 function build_package_zlib()
 {
-            download_tarfile "http://zlib.net/zlib-${ZLIB_VERSION}.tar.gz"
-            build_with_configure
+    download_tarfile "http://zlib.net/zlib-${ZLIB_VERSION}.tar.gz"
+    build_with_configure
 }
 
 function build_package_libzip()
 {
-            download_tarfile "https://nih.at/libzip/libzip-${LIBZIP_VERSION}.tar.gz"
-            ENV_ARGS="LD_LIBRARY_PATH=${INSTALL_DIR}/lib PATH=${INSTALL_DIR}/bin:$PATH" \
-                    CONFIGURE_ARGS="./configure --with-zlib=${INSTALL_DIR} --prefix=${INSTALL_DIR}" \
-                    build_with_configure
+    download_tarfile "https://nih.at/libzip/libzip-${LIBZIP_VERSION}.tar.gz"
+    ENV_ARGS="LD_LIBRARY_PATH=${INSTALL_DIR}/lib PATH=${INSTALL_DIR}/bin:$PATH" \
+    CONFIGURE_ARGS="./configure --with-zlib=${INSTALL_DIR} --prefix=${INSTALL_DIR}" \
+        build_with_configure
 }
 
 function build_package_libxz()
@@ -220,8 +237,8 @@ function build_package_libxz()
     #download_tarfile "http://tukaani.org/xz/xz-${LZMA_VERSION}.tar.gz"
     LZMA_OPTS="--enable-shared --disable-static --disable-xzdec --disable-lzmadec --disable-xz --enable-assembler=x86_64"
     CONFIGURE_ARGS="./configure $LZMA_OPTS --prefix=${INSTALL_DIR}"\
-                  INSTALL_ARGS="make install PREFIX=${INSTALL_DIR}" \
-                  build_with_configure
+    INSTALL_ARGS="make install PREFIX=${INSTALL_DIR}" \
+        build_with_configure
 }
 
 function build_package_openssl()
@@ -241,11 +258,9 @@ function build_package_libcurl()
                --disable-symbol-hiding --disable-hidden-symbols --enable-threaded-resolver \
                --with-zsh-functions-dir=/usr/share/zsh/vendor-completions --disable-ldap \
                --disable-ldaps --with-cyassl=${INSTALL_DIR} "
-    #export CC=$MYCC
-    #export CXX=$MYCXX
-    export LD_LIBRARY_PATH=${INSTALL_DIR}/lib:${INSTALL_DIR}/lib64:$LD_LIBRARY_PATH
     CONFIGURE_ARGS="./configure --with-zlib=${INSTALL_DIR} $CURL_OPTS --prefix=${INSTALL_DIR}"
-    build_with_configure
+    LD_LIBRARY_PATH=${INSTALL_DIR}/lib:${INSTALL_DIR}/lib64:$LD_LIBRARY_PATH \
+        build_with_configure
 }
 
 function build_package_ninja()
@@ -450,8 +465,8 @@ function build_package_libbson()
 function build_package_mongo-c-driver()
 {
     download_tarfile "https://github.com/mongodb/mongo-c-driver/releases/download/${MONGOC_VERSION}/mongo-c-driver-${MONGOC_VERSION}.tar.gz"
-    export PATH="${INSTALL_DIR}/bin:$PATH"
-    export LD_LIBRARY_PATH="${INSTALL_DIR}/lib:${INSTALL_DIR}/lib64:$LD_LIBRARY_PATH"
+    #export PATH="${INSTALL_DIR}/bin:$PATH"
+    #export LD_LIBRARY_PATH="${INSTALL_DIR}/lib:${INSTALL_DIR}/lib64:$LD_LIBRARY_PATH"
     CONFIGURE_ARGS="cmake -G \"$CMAKE_BUILDER\" -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} -DCMAKE_BUILD_TYPE=Release \
                     -DCMAKE_INSTALL_PREFIX=\"${INSTALL_DIR}\" \
                     -DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF \
@@ -462,13 +477,15 @@ function build_package_mongo-c-driver()
                     -DCMAKE_C_COMPILER=$CC \
                     -DBUILD_SHARED_LIBS=ON \
                     ${BUILD_DIR}/${DIRNAME}"
-    build_with_cmake
+    PATH="${INSTALL_DIR}/bin:$PATH" \
+    LD_LIBRARY_PATH="${INSTALL_DIR}/lib:${INSTALL_DIR}/lib64:$LD_LIBRARY_PATH" \
+        build_with_cmake
 }
 function build_package_mongo-cxx-driver()
 {
     #https://mongodb.github.io/mongo-cxx-driver/mongocxx-v3/installation/
     download_tarfile "https://github.com/mongodb/mongo-cxx-driver/archive/r${MONGOCXX_VERSION}.tar.gz" "mongo-cxx-driver-r${MONGOCXX_VERSION}.tar.gz"
-    export LD_LIBRARY_PATH=${INSTALL_DIR}/lib:${INSTALL_DIR}/lib64:$LD_LIBRARY_PATH
+    #export LD_LIBRARY_PATH=${INSTALL_DIR}/lib:${INSTALL_DIR}/lib64:$LD_LIBRARY_PATH
     CONFIGURE_ARGS="cmake -G \"$CMAKE_BUILDER\" -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} -DCMAKE_BUILD_TYPE=Release \
                     -DCMAKE_INSTALL_PREFIX=\"${INSTALL_DIR}\" \
                     -DCMAKE_C_FLAGS=\"$CFLAGS -Wall -Wextra -Wno-attributes -Werror -Wno-error=missing-field-initializers $CFLAGS\" \
@@ -485,7 +502,8 @@ function build_package_mongo-cxx-driver()
                     -DCMAKE_LIBRARY_PATH=\"${INSTALL_DIR}/lib\" \
                     -DCMAKE_INCLUDE_PATH=\"${INSTALL_DIR}/include\" \
                     ${BUILD_DIR}/${DIRNAME}"
-    build_with_cmake
+    LD_LIBRARY_PATH=${INSTALL_DIR}/lib:${INSTALL_DIR}/lib64:$LD_LIBRARY_PATH \
+        build_with_cmake
 }
 
 function build_package_xerces-c()
@@ -517,23 +535,26 @@ function build_package_tbb()
 {
     download_tarfile "https://github.com/01org/tbb/archive/${INTELTBB_VERSION}.tar.gz" "tbb-${INTELTBB_VERSION}.tar.gz"
     CONFIGURE_ARGS="true"
-    export PATH=${INSTALL_DIR}/bin:$PATH
-    export CXXFLAGS="-fno-exceptions -I${INSTALL_DIR}/include ${CXXFLAGS}"
-    export CFLAGS="-I${INSTALL_DIR}/include ${CFLAGS}"
+    #export PATH=${INSTALL_DIR}/bin:$PATH
+    #export CXXFLAGS="-fno-exceptions -I${INSTALL_DIR}/include ${CXXFLAGS}"
+    #export CFLAGS="-I${INSTALL_DIR}/include ${CFLAGS}"
     MAKE_ARGS="make compiler=clang  verbose=1"
     INSTALL_ARGS="rsync -av --exclude='*.d' --exclude='*.o' ${BUILD_DIR}/${DIRNAME}/build/linux*_release/ ${INSTALL_DIR}/lib && \
                   rsync -av --exclude='*.d' --exclude='*.o' ${BUILD_DIR}/${DIRNAME}/build/linux*_debug/ ${INSTALL_DIR}/lib && \
                   mkdir -p ${INSTALL_DIR}/include/tbb && \
                   rsync -av ${BUILD_DIR}/${DIRNAME}/include/tbb/ ${INSTALL_DIR}/include/tbb/ "
-    build_with_configure
+    PATH=${INSTALL_DIR}/bin:$PATH \
+    CXXFLAGS="-fno-exceptions -I${INSTALL_DIR}/include ${CXXFLAGS}" \
+    CFLAGS="-I${INSTALL_DIR}/include ${CFLAGS}" \
+        build_with_configure
 }
 
 function build_package_tiny-dnn()
 {
     #https://github.com/tiny-dnn/tiny-dnn/archive/v1.0.0a3.tar.gz
     download_tarfile "https://github.com/tiny-dnn/tiny-dnn/archive/v${TINYDNN_VERSION}.tar.gz" "tiny-dnn-${TINYDNN_VERSION}.tar.gz"
-    export PATH="$PATH:${INSTALL_DIR}/bin"
-    export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${INSTALL_DIR}/lib"
+    #export PATH="$PATH:${INSTALL_DIR}/bin"
+    #export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${INSTALL_DIR}/lib"
     CONFIGURE_ARGS="cmake -G \"$CMAKE_BUILDER\" -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} -DCMAKE_BUILD_TYPE=Release \
                     -DBUILD_SHARED_LIBS=ON \
                     -DCMAKE_CXX_COMPILER=$MYCXX \
@@ -550,7 +571,9 @@ function build_package_tiny-dnn()
                   rsync -a ${BUILD_DIR}/${DIRNAME}/cereal/ ${INSTALL_DIR}/include/cereal/ && \
                   rsync -a ${BUILD_DIR}/${DIRNAME}/third_party/ ${INSTALL_DIR}/include/third_party/  && \
                   rsync -a ${BUILD_DIR}/${DIRNAME}/tiny_dnn/ ${INSTALL_DIR}/include/tiny_dnn/ "
-    build_with_cmake
+    PATH="$PATH:${INSTALL_DIR}/bin" \
+    LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${INSTALL_DIR}/lib" \
+        build_with_cmake
 }
 
 function build_package_qt5()
@@ -558,8 +581,8 @@ function build_package_qt5()
     #http://doc.qt.io/qt-5/linux-building.html
     #http://wiki.qt.io/Building_Qt_5_from_Git
     download_tarfile "http://download.qt.io/official_releases/qt/${QT_VERSION%.*}/${QT_VERSION}/single/qt-everywhere-src-${QT_VERSION}.tar.xz"
-    export PATH="${INSTALL_DIR}/bin:$PATH"
-    export LD_LIBRARY_PATH="${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/lib:${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/lib64:${INSTALL_DIR}/lib:${INSTALL_DIR}/lib64:/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH"
+    #export PATH="${INSTALL_DIR}/bin:$PATH"
+    #export LD_LIBRARY_PATH="${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/lib:${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/lib64:${INSTALL_DIR}/lib:${INSTALL_DIR}/lib64:/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH"
     CONFIGURE_ARGS="./configure \
                               -prefix ${INSTALL_DIR}/qt${QT_VERSION} \
                               -opensource -confirm-license -release -shared  \
@@ -576,7 +599,9 @@ function build_package_qt5()
                               -I${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/include/openssl \
                               -L${INSTALL_DIR}/lib \
                               -platform linux-clang "
-    build_with_configure
+    PATH="${INSTALL_DIR}/bin:${PATH}" \
+    LD_LIBRARY_PATH="${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/lib:${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/lib64:${INSTALL_DIR}/lib:${INSTALL_DIR}/lib64:/usr/lib/x86_64-linux-gnu/:${LD_LIBRARY_PATH}" \
+        build_with_configure
 }
 
 function build_package_libelf()
@@ -607,27 +632,32 @@ function build_package_mpfr()
     build_with_configure
 }
 
+function build_package_isl()
+{
+    download_tarfile "https://gcc.gnu.org/pub/gcc/infrastructure/isl-${ISL_VERSION}.tar.bz2"
+    CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR} --disable-static --with-gmp=${INSTALL_DIR} "
+    build_with_configure
+}
+
 
 function build_package_gcc()
 {
     #"depends": [ "binutils","libelf", "libtool", "mpc", "mpfr", "gmp", "ppl", "cloog", "isl" ],
     download_tarfile "http://gcc.gnu.org/pub/gcc/releases/gcc-${GCC_VERSION}/gcc-${GCC_VERSION}.tar.xz"
-    export LD_LIBRARY_PATH=$INSTALL_DIR/lib:$INSTALL_DIR/lib64
-    export PATH=$INSTALL_DIR/bin:$PATH
-    export LDFLAGS="-L${INSTALL_DIR}/lib -L${INSTALL_DIR}/lib64"
-    export CFLAGS="-O3 -I${INSTALL_DIR}/include"
-    export CPPFLAGS="-O3 -I${INSTALL_DIR}/include"
+    #export LD_LIBRARY_PATH=$INSTALL_DIR/lib:$INSTALL_DIR/lib64
+    #export PATH=$INSTALL_DIR/bin:$PATH
+    #export LDFLAGS="-L${INSTALL_DIR}/lib -L${INSTALL_DIR}/lib64"
+    #export CFLAGS="-O3 -I${INSTALL_DIR}/include -I/usr/include"
+    #export CPPFLAGS="-O3 -I${INSTALL_DIR}/include -I/usr/include"
     CONFIGURE_ARGS="./configure \
     --prefix=${INSTALL_DIR} \
     --enable-languages=c,c++,fortran \
     --enable-threads=posix \
     --enable-tls \
     --enable-libgomp  \
-    --enable-lto  \
+    --enable-shared \
     --disable-nls \
-    --disable-checking \
     --disable-multilib \
-    --disable-libstdcxx-pch \
     --with-fpmath=sse \
     --program-suffix=-${GCC_VERSION} \
     --enable-__cxa_atexit \
@@ -637,8 +667,12 @@ function build_package_gcc()
     --with-as=${INSTALL_DIR}/bin/as \
     --with-gmp=${INSTALL_DIR} \
     --with-mpfr=${INSTALL_DIR} \
-    --with-mpc=${INSTALL_DIR} "
-    build_with_configure
+    --with-mpc=${INSTALL_DIR} \
+    --with-isl=${INSTALL_DIR}"    
+    MAKE_ARGS="make -j$NUMJOBS configure-build-libiberty && make -j$NUMJOBS all-build-libiberty && make -j$NUMJOBS all-gcc && make -j$NUMJOBS all-target-libgcc && make  -j$NUMJOBS "
+    INSTALL_ARGS="make install-gcc && make install-target-libgcc && make install"
+    LDFLAGS="-L${INSTALL_DIR}/lib -L${INSTALL_DIR}/lib64" PATH="${INSTALL_DIR}/bin:${PATH}" LD_LIBRARY_PATH="${INSTALL_DIR}/lib:${INSTALL_DIR}/lib64" \
+       build_with_configure
 }
 
 function build_package_libpng()
