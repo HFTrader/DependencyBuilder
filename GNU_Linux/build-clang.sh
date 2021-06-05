@@ -21,66 +21,47 @@ if [ ! -e $INSTALL_DIR/clang.done ]; then
     #http://btorpey.github.io/blog/2015/01/02/building-clang/
     CLANG_URL="https://github.com/llvm/llvm-project/" 
     CLANG_SVN_URL="http://llvm.org/svn/llvm-project/"
-    CLANG_ID="$CLANG_VERSION"
-    if [ "$CLANG_USES_SVN" -eq 1 ]; then
-        CLANG_ID="$CLANG_SVN_VERSION"
-    fi
-    CLANG_DIR="clang-${CLANG_ID}"
 
     if [ ! -f "$INSTALL_DIR/clang.done" ]; then
 
         cd $BUILD_DIR
+        rm -rf clang-${CLANG_VERSION}
+
+        # clone the entire clang project (very slow)
+        TARFILE="${CACHE_DIR}/clang-${CLANG_VERSION}.tar.xz"
+        if [ ! -e "${TARFILE}" ]; then
+            pushd "${CACHE_DIR}"
+            if [ ! -d "llvm-project" ]; then 
+                git clone https://github.com/llvm/llvm-project.git
+            fi 
+            cd llvm-project 
+            git pull 
+            git checkout llvmorg-${CLANG_VERSION}
+            cd ..
+            rsync -a llvm-project/ clang-${CLANG_VERSION}/
+            rm -rf clang-${CLANG_VERSION}/.git 
+            tar caf "${TARFILE}" clang-${CLANG_VERSION}
+            rm -rf clang-${CLANG_VERSION}
+            popd 
+        fi 
 
         # Download all necessary packages
-        PACKAGES="llvm compiler-rt clang-tools-extra libunwind lld lldb openmp polly" # libcxx libcxxabi"
-        for pkg in $PACKAGES; do
-            TARFILE="${pkg}-${CLANG_ID}.src.tar.xz"
-            UNTARDIR="${pkg}-${CLANG_ID}.src"
-            if [ ! -e "$CACHE_DIR/$TARFILE" ]; then
-                wget $CLANG_URL/releases/download/llvmorg-$CLANG_VERSION/$TARFILE -O $CACHE_DIR/$TARFILE
-            fi
-            rm -rf $UNTARDIR
-            tar xaf $CACHE_DIR/$TARFILE
-        done
+        tar xaf "${TARFILE}"
 
-        # move to respective places
-        rm -rf ${CLANG_DIR}
-        mv -v llvm-${CLANG_ID}.src ${CLANG_DIR}
-        #mv -v cfe-${CLANG_ID}.src ${CLANG_DIR}/tools/clang
-        mv -v clang-tools-extra-${CLANG_ID}.src $CLANG_DIR/tools/extra
-        #mv -v libcxx-${CLANG_ID}.src $CLANG_DIR/projects/libcxx
-        #mv -v libcxxabi-${CLANG_ID}.src $CLANG_DIR/projects/libcxxabi
-        mv -v compiler-rt-${CLANG_ID}.src $CLANG_DIR/projects/compiler-rt
-
-        CLANG_OPTS_CCACHE=""
-        if [ -n "$USE_CCACHE" ]; then
-            CLANG_OPTS_CCACHE="-DLLVM_CCACHE_BUILD=ON \
-                               -DLLVM_CCACHE_DIR=$BUILD_DIR/ccache \
-                               -DCCACHE_PROGRAM=$(which ccache)"
-        fi
         # -DLIBCXX_LIBCXXABI_WHOLE_ARCHIVE=on -DLIBCXXABI_ENABLE_SHARED=off"
         #CLANG_OPTS_COMMON="$CLANG_OPTS_COMMON -DCMAKE_CXX_LINK_FLAGS=\"-L${HOST_GCC}/lib64 -Wl,-rpath,${HOST_GCC}/lib64\" "
-
-        mv -v libunwind-${CLANG_ID}.src $CLANG_DIR/projects/libunwind
-        #mv -v openmp-${CLANG_ID}.src $CLANG_DIR/projects/openmp
-        mv -v lld-${CLANG_ID}.src $CLANG_DIR/tools/lld
-        #mv -v lldb-${CLANG_ID}.src $CLANG_DIR/tools/lldb
-        mv -v polly-${CLANG_ID}.src $CLANG_DIR/tools/polly
 
         # cmake
         rm -rf clang-build && mkdir -p clang-build
         cd clang-build
         (            
             export PATH="${INSTALL_DIR}/bin:$PATH"
-            export LD_LIBRARY_PATH="$INSTALL_DIR/lib:$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu"
+            export LD_LIBRARY_PATH="$INSTALL_DIR/lib:$INSTALL_DIR/lib64:$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu"
             export CFLAGS="-I$INSTALL_DIR/include -I$INSTALL_DIR/include/ncurses"
             export CPPFLAGS="-I$INSTALL_DIR/include -I$INSTALL_DIR/include/ncurses"
             export CXX_FLAGS="-I$INSTALL_DIR/include -I$INSTALL_DIR/include/ncurses"
-            which cmake 
-            which $CXX 
-            which $CC 
-
-            eval "$CLANG_ENV" && \
+            
+            eval "$CLANG_ENV" && \            
             cmake -G "$CMAKE_BUILDER"  \
                   -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR  \
                   -DCMAKE_BUILD_TYPE=Release \
@@ -96,20 +77,28 @@ if [ ! -e $INSTALL_DIR/clang.done ]; then
                   -DLLVM_PARALLEL_COMPILE_JOBS=$NUMJOBS \
                   -DLLVM_PARALLEL_LINK_JOBS=$NUMJOBS \
                   -DCMAKE_CXX_LINK_FLAGS=-L$INSTALL_DIR/lib \
-                  -DCMAKE_CXX_FLAGS="$CXX_FLAGS" \
-                  -DLLVM_BUILD_TESTS=OFF \
+                  -DCMAKE_CXX_FLAGS="$CXX_FLAGS -I$INSTALL_DIR/include" \
                   -DLLVM_INCLUDE_TESTS=OFF \
                   -DLLVM_BUILD_EXAMPLES=OFF \
+                  -DLLVM_BUILD_TESTS=OFF \
+                  -DLLVM_BUILD_EXTERNAL_COMPILER_RT=On \
+                  -DLLVM_BUILD_TOOLS=ON \
                   -DLLVM_INCLUDE_EXAMPLES=OFF \
                   -DCLANG_BUILD_EXAMPLES=OFF \
-                  -DBUILD_SHARED_LIBS=ON \
                   -DCMAKE_SHARED_LINKER_FLAGS="-L${INSTALL_DIR}/lib" \
                   -DCLANG_BUILD_TOOLS=ON \
-                  -DCMAKE_POLICY_DEFAULT_CMP0056=NEW \
-                  -DCMAKE_POLICY_DEFAULT_CMP0058=NEW \
+                  -DCLANG_ENABLE_STATIC_ANALIZER=ON \
+                  -DCLANG_VENDOR="Vitorian LLC" \
+                  -DLLVM_INCLUDE_DOCS=OFF \
+                  -DLLVM_INCLUDE_EXAMPLES=ON \
+                  -DLLVM_INCLUDE_TOOLS=ON \
+                  -DLLVM_INCLUDE_TESTS=ON \
+                  -DLLVM_ENABLE_PROJECTS="clang;compiler-rt;lld;polly;clang-tools-extra" \
+                  -DLLVM_BUILD_LLVM_DYLIB:BOOL=ON \
+                  -DLLVM_LINK_LLVM_DYLIB:BOOL=ON \
                   $CLANG_OPTS_CCACHE \
-                  $BUILD_DIR/$CLANG_DIR && \
-            time cmake --build . -- -j$NUMJOBS && \
+                  $BUILD_DIR/clang-${CLANG_VERSION}/llvm && \
+            cmake --build . -- -j$NUMJOBS && \
             cmake --build . --target install && \
             echo $(date +%Y%m%d-%H%M%S) > $INSTALL_DIR/clang.done \
         ) > $BUILD_DIR/clang.log 2> $BUILD_DIR/clang.err || exit 1
