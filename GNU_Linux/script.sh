@@ -19,8 +19,17 @@ build_package libelf
 build_package gmp
 build_package mpfr
 build_package mpc
+build_package expat
+build_package texinfo
 build_package isl
+build_package libffi
 build_package gcc
+build_package zlib
+build_package libzip
+build_package bzip2
+build_package libxz
+build_package tar
+build_package openssl
 
 export CC=${INSTALL_DIR}/bin/gcc-${GCC_VERSION}
 export CXX=${INSTALL_DIR}/bin/g++-${GCC_VERSION}
@@ -56,12 +65,6 @@ export FFLAGS="-O3 -fPIC " #-march=$MYARCH -fPIC"
 export PKG_CONFIG_PATH="${INSTALL_DIR}/lib/pkgconfig:${INSTALL_DIR}/lib64/pkgconfig:$PKG_CONFIG_PATH"
 
 build_package openonload
-build_package zlib
-build_package libzip
-build_package bzip2
-build_package libxz
-build_package tar
-build_package openssl
 build_package libcurl
 #build_package sasl
 build_package boost

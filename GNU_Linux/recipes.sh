@@ -42,11 +42,22 @@ function build_package_swig()
         build_with_configure
 }
 
+function build_package_expat()
+{
+    download_tarfile "https://github.com/libexpat/libexpat/releases/download/R_${EXPAT_VERSION//\./_}/expat-${EXPAT_VERSION}.tar.gz"
+    build_with_configure
+}
 
 function build_package_coreutils()
 {
     download_tarfile "https://ftp.gnu.org/gnu/coreutils/coreutils-${COREUTILS_VERSION}.tar.xz"
     build_with_configure
+}
+
+function build_package_texinfo()
+{
+    download_tarfile "https://ftp.gnu.org/gnu/texinfo/texinfo-${TEXINFO_VERSION}.tar.xz"
+    CFLAGS="-I${INSTALL_DIR}/include" LDFLAGS="-L${INSTALL_DIR}/lib" build_with_configure
 }
 
 function build_package_yasm()
@@ -126,6 +137,13 @@ function build_package_binutils()
     build_with_configure
 }
 
+function build_package_libffi()
+{
+    download_tarfile "https://github.com/libffi/libffi/archive/refs/tags/v${LIBFFI_VERSION}.tar.gz" libffi-${LIBFFI_VERSION}.tar.gz
+    CONFIGURE_ARGS="./autogen.sh && ./configure --prefix=${INSTALL_DIR}"
+    PATH=$PATH:${INSTALL_DIR}/bin build_with_configure
+}
+
 function build_package_python()
 {
     download_tarfile "https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz"
@@ -135,12 +153,14 @@ function build_package_python()
                  --enable-shared \
                  --enable-unicode=ucs4 \
                  --with-dbmliborder=bdb:gdbm \
-                 --with-system-expat \
                  --with-ensurepip=install \
+                 --with-system-ffi=no \
+		 --with-ffi=${INSTALL_DIR} \
+                 --with-expat=${INSTALL_DIR} \
                  --with-computed-gotos"
     CONFIGURE_ARGS="./configure $PYTHON_ARGS --prefix=${INSTALL_DIR}"
     MAKE_ARGS="make -j$NUMJOBS build_all"
-    CFLAGS="-DNDEBUG -DPy_NDEBUG" CPPFLAGS="-I${INSTALL_DIR}/include/ncurses" \
+    LD_LIBRARY_PATH="${INSTALL_DIR}/lib:${INSTALL_DIR}/lib64:$LD_LIBRARY_PATH" CFLAGS="-DNDEBUG -DPy_NDEBUG -I${INSTALL_DIR}/include" CPPFLAGS="-I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/ncurses" \
         build_with_configure
     #cd ${INSTALL_DIR}
     #${INSTALL_DIR}/bin/pip3 install --user Cheetah Markdown
@@ -269,10 +289,10 @@ function build_package_ninja()
                      "ninja-${NINJA_VERSION}.tar.gz"
     export PATH=$PATH:$INSTALL_DIR/bin
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$INSTALL_DIR/lib
-    CONFIGURE_ARGS="./configure.py --bootstrap"
+    CONFIGURE_ARGS="${INSTALL_DIR}/bin/python3 ./configure.py --bootstrap"
     MAKE_ARGS="true"
     INSTALL_ARGS="mkdir -p ${INSTALL_DIR}/bin && cp -v ninja ${INSTALL_DIR}/bin"
-    build_with_configure
+    LD_LIBRARY_PATH="${INSTALL_DIR}/lib:${INSTALL_DIR}/lib64" build_with_configure
 }
 
 function build_package_sasl()
@@ -635,7 +655,7 @@ function build_package_mpfr()
 function build_package_isl()
 {
     download_tarfile "https://gcc.gnu.org/pub/gcc/infrastructure/isl-${ISL_VERSION}.tar.bz2"
-    CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR} --disable-static --with-gmp=${INSTALL_DIR} "
+    CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR} --disable-static --with-gmp-prefix=${INSTALL_DIR} "
     build_with_configure
 }
 
