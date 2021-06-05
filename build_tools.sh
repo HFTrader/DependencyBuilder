@@ -128,7 +128,7 @@ function build_generic()
 function build_with_cmake()
 {
     TMPDIR=${TMPDIR:-"$BUILD_DIR/$DIRNAME/build-tmp"}
-    MAKE_ARGS=${MAKE_ARGS:-"cmake --build ."}
+    MAKE_ARGS=${MAKE_ARGS:-"cmake --build . -- -j$NUMJOBS"}
     INSTALL_ARGS=${INSTALL_ARGS:-"cmake --build . --target install"}
     CONFIGURE_ARGS=${CONFIGURE_ARGS:-"cmake -G \"$CMAKE_BUILDER\" -DCMAKE_INSTALL_PREFIX=\"${INSTALL_DIR}\" -DCMAKE_BUILD_TYPE=Release ${BUILD_DIR}/${DIRNAME} " }
     build_generic $*
