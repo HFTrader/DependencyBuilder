@@ -191,7 +191,7 @@ function build_package_cmake()
     CMAKE_VERSION_SHORT=$(echo $CMAKE_VERSION | cut -d '.' -f 1-2)
     #VV=(${CMAKE_VERSION//./ })
     download_tarfile "https://cmake.org/files/v${CMAKE_VERSION_SHORT}/cmake-${CMAKE_VERSION}.tar.gz"
-    PATH=$PATH:${INSTALL_DIR}/bin \
+    OPENSSL_ROOT_DIR="${INSTALL_DIR}/openssl-${OPENSSL_VERSION}" PATH=$PATH:${INSTALL_DIR}/bin \
         build_with_configure
 }
 

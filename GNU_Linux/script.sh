@@ -29,12 +29,14 @@ build_package libzip
 build_package bzip2
 build_package libxz
 build_package tar
+build_package libedit
 build_package openssl
 
 export CC=${INSTALL_DIR}/bin/gcc-${GCC_VERSION}
 export CXX=${INSTALL_DIR}/bin/g++-${GCC_VERSION}
 export PATH="${INSTALL_DIR}/bin:$PATH"
-export LD_LIBRARY_PATH="${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib:${LD_LIBRARY_PATH}"
+export OPENSSL_ROOT_DIR="${INSTALL_DIR}/openssl-${OPENSSL_VERSION}"
+export LD_LIBRARY_PATH="${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib:${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/lib:${LD_LIBRARY_PATH}"
 
 build_package python
 build_package ninja
@@ -46,7 +48,6 @@ build_package cmake
 build_package gtest
 build_package pcre
 build_package swig
-build_package libedit
 build_package clang
 
 # this guy cannot be compiled with clang
