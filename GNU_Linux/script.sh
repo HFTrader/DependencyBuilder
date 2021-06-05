@@ -60,7 +60,7 @@ export PATH="${INSTALL_DIR}/bin:$PATH"
 export LD_LIBRARY_PATH="${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib:$LD_LIBRARY_PATH"
 export LDFLAGS="-L${INSTALL_DIR}/lib -L${INSTALL_DIR}/lib64"
 export CFLAGS="-O3 -m64 " #-march=$MYARCH -mtune=$MYARCH"
-export CXXFLAGS="-O3 -m64 " #-march=$MYARCH -mtune=$MYARCH"
+export CXXFLAGS="-O3 -m64 --gcc-toolchain=${INSTALL_DIR}" #-march=$MYARCH -mtune=$MYARCH"
 export FFLAGS="-O3 -fPIC " #-march=$MYARCH -fPIC"
 export PKG_CONFIG_PATH="${INSTALL_DIR}/lib/pkgconfig:${INSTALL_DIR}/lib64/pkgconfig:$PKG_CONFIG_PATH"
 

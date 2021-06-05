@@ -206,12 +206,19 @@ function build_package_ncurses()
 function build_package_openonload()
 {
     PACKAGE="openonload"
-    VERSION="$OPENONLOAD_VERSION"
-    DIRNAME="openonload-$OPENONLOAD_VERSION"
-    EXT="tgz"
-    URL="http://www.openonload.org/download/openonload-$OPENONLOAD_VERSION.tgz"
-    TARFILE="openonload-$OPENONLOAD_VERSION.tgz"
-    download_tarfile
+    VERSION="${OPENONLOAD_VERSION}"
+    DIRNAME="onload-${OPENONLOAD_VERSION}"
+    TARFILE="onload-${OPENONLOAD_VERSION}.tgz"
+    ZIP_FILE="openonload-${OPENONLOAD_VERSION}.zip"
+    if [ ! -e "${CACHE_DIR}/${TARFILE}" ]; then
+        URL="https://support-nic.xilinx.com/wp/onload?sd=SF-109585-LS-35&pe=SF-122921-DH-4"
+        wget --no-check-certificate "$URL" -O "${CACHE_DIR}/${ZIP_FILE}"
+	cd ${BUILD_DIR}
+	rm onload-${OPENONLOAD_VERSION}*
+	unzip ${CACHE_DIR}/${ZIP_FILE}
+	mv -v ${TARFILE} ${CACHE_DIR}/${TARFILE}
+	rm onload-${OPENONLOAD_VERSION}*
+    fi
 
     #ENV_ARGS="CPPFLAGS=\"-I$INSTALL_DIR/include\" LD_LIBRARY_PATH=${INSTALL_DIR}/lib PATH=${INSTALL_DIR}/bin:$PATH"
     export CC=$(which gcc)
@@ -246,7 +253,7 @@ function build_package_zlib()
 function build_package_libzip()
 {
     download_tarfile "https://nih.at/libzip/libzip-${LIBZIP_VERSION}.tar.gz"
-    ENV_ARGS="LD_LIBRARY_PATH=${INSTALL_DIR}/lib PATH=${INSTALL_DIR}/bin:$PATH" \
+    ENV_ARGS="LD_LIBRARY_PATH=${INSTALL_DIR}/lib:$LD_LIBRARY_PATH PATH=${INSTALL_DIR}/bin:$PATH" \
     CONFIGURE_ARGS="./configure --with-zlib=${INSTALL_DIR} --prefix=${INSTALL_DIR}" \
         build_with_configure
 }
