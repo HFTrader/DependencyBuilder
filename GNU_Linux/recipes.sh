@@ -213,6 +213,7 @@ function build_package_openonload()
     if [ ! -e "${CACHE_DIR}/${TARFILE}" ]; then
         URL="https://support-nic.xilinx.com/wp/onload?sd=SF-109585-LS-35&pe=SF-122921-DH-4"
         wget --no-check-certificate "$URL" -O "${CACHE_DIR}/${ZIP_FILE}"
+	mkdir -p ${BUILD_DIR}
 	cd ${BUILD_DIR}
 	rm onload-${OPENONLOAD_VERSION}*
 	unzip ${CACHE_DIR}/${ZIP_FILE}
@@ -319,7 +320,6 @@ function build_package_lapack()
                          -DCMAKE_C_COMPILER=$CC            \
                          -DCMAKE_Fortran_COMPILER=$FC      \
                          -DBUILD_SHARED_LIBS=ON "
-    export LD_LIBRARY_PATH=${INSTALL_DIR}/lib
     CONFIGURE_ARGS="cmake -G \"$CMAKE_BUILDER\" -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} -DCMAKE_BUILD_TYPE=Release \
                     $LAPACK_OPTS ${BUILD_DIR}/${DIRNAME}"
     build_with_cmake

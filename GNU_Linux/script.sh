@@ -31,6 +31,7 @@ build_package libxz
 build_package tar
 build_package libedit
 build_package openssl
+build_package pkgconfig
 
 export CC=${INSTALL_DIR}/bin/gcc-${GCC_VERSION}
 export CXX=${INSTALL_DIR}/bin/g++-${GCC_VERSION}
@@ -40,7 +41,7 @@ export LD_LIBRARY_PATH="${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib:${INSTALL_DIR}/o
 
 build_package python
 build_package ninja
-build_package pkgconfig
+
 
 export CMAKE_BUILDER=Ninja
 
@@ -58,10 +59,10 @@ export CC="${INSTALL_DIR}/bin/clang" #${MYCC}"
 export CXX="${INSTALL_DIR}/bin/clang++" #"${MYCXX}"
 export FC="${INSTALL_DIR}/bin/gfortran-${GCC_VERSION}"
 export PATH="${INSTALL_DIR}/bin:$PATH"
-export LD_LIBRARY_PATH="${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib:$LD_LIBRARY_PATH"
-export LDFLAGS="-L${INSTALL_DIR}/lib -L${INSTALL_DIR}/lib64"
-export CFLAGS="-O3 -m64 " #-march=$MYARCH -mtune=$MYARCH"
-export CXXFLAGS="-O3 -m64 --gcc-toolchain=${INSTALL_DIR}" #-march=$MYARCH -mtune=$MYARCH"
+export LD_LIBRARY_PATH="${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib:${LD_LIBRARY_PATH}"
+export LDFLAGS="-L${INSTALL_DIR}/lib -L${INSTALL_DIR}/lib64 ${LDFLAGS}"
+export CFLAGS="-O3 " #-march=$MYARCH -mtune=$MYARCH"
+export CXXFLAGS="-O3 --gcc-toolchain=${INSTALL_DIR}" #-march=$MYARCH -mtune=$MYARCH"
 export FFLAGS="-O3 -fPIC " #-march=$MYARCH -fPIC"
 export PKG_CONFIG_PATH="${INSTALL_DIR}/lib/pkgconfig:${INSTALL_DIR}/lib64/pkgconfig:$PKG_CONFIG_PATH"
 
