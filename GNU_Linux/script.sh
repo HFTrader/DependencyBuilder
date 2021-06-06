@@ -77,20 +77,20 @@ build_package armadillo
 build_package yaml-cpp
 build_package cryptopp
 build_package util-linux
-build_package libbson
+#build_package libbson
 build_package mongo-c-driver
 build_package mongo-cxx-driver
 build_package yasm
 build_package nasm
-build_package tbb
-build_package tiny-dnn
+#build_package tbb
+#build_package tiny-dnn
 build_package libjpeg-turbo
 build_package libpng
 build_package freetype
-build_package qt5
 build_package jsoncpp
 build_package double-conversion
-build_package aws-sdk-cpp
+#build_package aws-sdk-cpp
+#build_package qt5
 
 #build_package libx11
 #build_package libxrender

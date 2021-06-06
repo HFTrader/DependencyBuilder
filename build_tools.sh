@@ -83,7 +83,7 @@ function build_generic()
         exit 1
     fi
     if [ -z "$VERSION" ]; then
-        echo "Version name is empty. Bailing out"
+        echo "VERSION is empty. Bailing out"
         exit 1
     fi
 

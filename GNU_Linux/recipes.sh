@@ -24,9 +24,6 @@ function build_package_pcre()
 function build_package_libedit()
 {
     download_tarfile  "http://thrysoee.dk/editline/libedit-${LIBEDIT_VERSION}.tar.gz"
-    #export CFLAGS="-I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/ncurses"
-    #export LDFLAGS="-L${INSTALL_DIR}/lib"
-    #CONFIGURE_ARGS="LDFLAGS=\"$LDFLAGS\" CFLAGS=\"$CFLAGS\" ./configure --prefix=$INSTALL_DIR"
     CFLAGS="-I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/ncurses" \
     LDFLAGS="-L${INSTALL_DIR}/lib" \
         build_with_configure
@@ -35,16 +32,15 @@ function build_package_libedit()
 function build_package_swig()
 {
     download_tarfile "http://prdownloads.sourceforge.net/swig/swig-${SWIG_VERSION}.tar.gz"
-    #export PCRE_CONFIG=${INSTALL_DIR}/bin/pcre-config
-    #export PATH=$PATH:${INSTALL_DIR}/bin
-    PCRE_CONFIG=${INSTALL_DIR}/bin/pcre-config \
-    PATH=$PATH:${INSTALL_DIR}/bin \
+    PCRE_CONFIG="${INSTALL_DIR}/bin/pcre-config" \
+    PATH="$PATH:${INSTALL_DIR}/bin" \
         build_with_configure
 }
 
 function build_package_expat()
 {
-    download_tarfile "https://github.com/libexpat/libexpat/releases/download/R_${EXPAT_VERSION//\./_}/expat-${EXPAT_VERSION}.tar.gz"
+    download_tarfile \
+    "https://github.com/libexpat/libexpat/releases/download/R_${EXPAT_VERSION//\./_}/expat-${EXPAT_VERSION}.tar.gz"
     build_with_configure
 }
 
@@ -177,9 +173,7 @@ function build_package_autoconf()
 function build_package_automake()
 {
     download_tarfile "http://ftpmirror.gnu.org/automake/automake-${AUTOMAKE_VERSION}.tar.gz"
-    export PATH=$PATH:${INSTALL_DIR}/bin
-    export PERL5LIB=${BUILD_DIR}/${DIRNAME}
-    export CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR}" 
+    CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR}" 
     PATH=$PATH:${INSTALL_DIR}/bin \
     PERL5LIB=${BUILD_DIR}/${DIRNAME} \
     CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR}"  \
@@ -222,10 +216,6 @@ function build_package_openonload()
     fi
 
     #ENV_ARGS="CPPFLAGS=\"-I$INSTALL_DIR/include\" LD_LIBRARY_PATH=${INSTALL_DIR}/lib PATH=${INSTALL_DIR}/bin:$PATH"
-    export CC=$(which gcc)
-    export CFLAGS="-I$INSTALL_DIR/include"
-    export LD_LIBRARY_PATH=${INSTALL_DIR}/lib
-    export PATH=${INSTALL_DIR}/bin:$PATH
     CONFIGURE_ARGS="true"
     MAKE_ARGS="scripts/onload_build --user64"
     INSTALL_ARGS="(PATH=${INSTALL_DIR}/bin:$PATH PERL5LIBS=$INSTALL_DIR/share/autoconf/Autom4te:$PERL5LIBS i_prefix=$BUILD_DIR/$DIRNAME/install_tmp scripts/onload_install \
@@ -295,8 +285,6 @@ function build_package_ninja()
 {
     download_tarfile "https://github.com/ninja-build/ninja/archive/v${NINJA_VERSION}.tar.gz" \
                      "ninja-${NINJA_VERSION}.tar.gz"
-    export PATH=$PATH:$INSTALL_DIR/bin
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$INSTALL_DIR/lib
     CONFIGURE_ARGS="${INSTALL_DIR}/bin/python3 ./configure.py --bootstrap"
     MAKE_ARGS="true"
     INSTALL_ARGS="mkdir -p ${INSTALL_DIR}/bin && cp -v ninja ${INSTALL_DIR}/bin"
@@ -307,7 +295,6 @@ function build_package_sasl()
 {
     download_tarfile "http://ftp.andrew.cmu.edu/pub/cyrus-mail/cyrus-sasl-${SASL_VERSION}.tar.gz"
     SASL_OPTS="--with-openssl=${INSTALL_DIR}/openssl --enable-plain --enable-login --enable-ntlm --with-des=no"
-    export CC=$(which gcc)
     CONFIGURE_ARGS="./configure $SASL_OPTS --prefix=${INSTALL_DIR}"
     build_with_configure
 }
@@ -339,10 +326,8 @@ function build_package_openblas()
 
     #CONFIGURE_ARGS="( cd $BUILD_DIR/$DIRNAME; patch --verbose kernel/x86_64/dgemm_kernel_4x8_sandy.S \
         #               < $SCRIPT_DIR/$OPSYS/patches/openblas_sandybridge.patch )"
-    export PATH=$INSTALL_DIR/bin:$PATH
-    export LD_LIBRARY_PATH=$INSTALL_DIR/lib:$INSTALL_DIR/lib64:$LD_LIBRARY_PATH
     CONFIGURE_ARGS="true"
-    MAKE_ARGS="make TARGET=SKYLAKE PREFIX=${INSTALL_DIR} DYNAMIC_ARCH=1 USE_THREADS=1 NUM_THREADS=${NUMJOBS} BINARY=64 CC=gcc-${GCC_VERSION} FC=$FC"
+    MAKE_ARGS="CFLAGS='-fallow-argument-mismatch' FFLAGS='-fallow-argument-mismatch' make DYNAMIC_ARCH=1 NO_WARMUP=1 BUILD_RELAPACK=0  BINARY=64  CC=gcc-${GCC_VERSION} FC=$FC"
     INSTALL_ARGS="make PREFIX=${INSTALL_DIR} install"
     build_with_configure
 }
@@ -358,8 +343,6 @@ function build_package_arpack()
     TARFILE="arpack${ARPACK_VERSION}.tar.gz"
     download_tarfile
 
-    export PATH=$INSTALL_DIR/bin:$PATH
-    export LD_LIBRARY_PATH=$INSTALL_DIR/lib:$INSTALL_DIR/lib64:$LD_LIBRARY_PATH
     CONFIGURE_ARGS="true"
     MAKE_ARGS="make FC=$FC CC=gcc-${GCC_VERSION} FFLAGS=\"$FFLAGS\" MAKE=$(which make) \
                HOME=$BUILD_DIR PLAT=x86_64 all"
@@ -376,7 +359,6 @@ function build_package_tar()
 function build_package_armadillo()
 {
     download_tarfile "http://sourceforge.net/projects/arma/files/armadillo-${ARMADILLO_VERSION}.tar.xz"
-    export LD_LIBRARY_PATH=${INSTALL_DIR}/lib
     CONFIGURE_ARGS="cmake -G \"$CMAKE_BUILDER\" -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} -DCMAKE_BUILD_TYPE=Release \
                           -DCMAKE_INCLUDE_PATH=\"${INSTALL_DIR}\" \
                           -DCMAKE_CXX_COMPILER=$CXX \
@@ -389,12 +371,11 @@ function build_package_armadillo()
 function build_package_yaml-cpp()
 {
     download_tarfile "https://github.com/jbeder/yaml-cpp/archive/yaml-cpp-${YAMLCPP_VERSION}.tar.gz"
-    export LD_LIBRARY_PATH=${INSTALL_DIR}/lib
     DIRNAME="yaml-cpp-yaml-cpp-${YAMLCPP_VERSION}"
-    CONFIGURE_ARGS="cmake -G \"$CMAKE_BUILDER\" -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} -DCMAKE_BUILD_TYPE=Release \
+    CONFIGURE_ARGS="cmake -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} -DCMAKE_BUILD_TYPE=Release \
+                            -DBOOST_ROOT=\"${BUILD_DIR}/boost_${BOOST_VERSION//./_}\" \
                             -DCMAKE_C_FLAGS=\"$CFLAGS\" \
                             -DCMAKE_CXX_FLAGS=\"$CXXFLAGS\" \
-                            -DBOOST_ROOT=\"${BUILD_DIR}/boost_${BOOST_VERSION//./_}\" \
                             -DCMAKE_CXX_COMPILER=$CXX \
                             -DCMAKE_C_COMPILER=$CC \
                             -DBUILD_SHARED_LIBS=ON \
@@ -428,7 +409,6 @@ function build_package_cryptopp()
         rm -rf "${DIRNAME}"
     fi
 
-    export LD_LIBRARY_PATH=${INSTALL_DIR}/lib
     CONFIGURE_ARGS="cmake -G \"$CMAKE_BUILDER\" -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} -DCMAKE_BUILD_TYPE=Release \
                     -DCMAKE_INCLUDE_PATH=\"${INSTALL_DIR}\" \
                     -DCMAKE_CXX_COMPILER=$CXX \
@@ -443,9 +423,6 @@ function build_package_util-linux()
 {
     VV=(${UTILLINUX_VERSION//./ })
     download_tarfile "https://www.kernel.org/pub/linux/utils/util-linux/v${VV[0]}.${VV[1]}/util-linux-${UTILLINUX_VERSION}.tar.xz"
-    export CFLAGS="-I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/ncurses -O3"
-    export LD_LIBRARY_PATH="${INSTALL_DIR}/lib"
-    export PATH="${INSTALL_DIR}/bin:$PATH"
     CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR} "
     NUMJOBS=1
     INSTALL_ARGS="( make install; true )"
@@ -454,14 +431,19 @@ function build_package_util-linux()
 
 function build_package_aws-sdk-cpp()
 {
-    PACKAGE="aws-sdk-cpp"
-    VERSION="${AWSSDKCPP_VERSION}"
-    EXT="tar.gz"
-    URL="https://github.com/aws/aws-sdk-cpp/archive/${AWSSDKCPP_VERSION}.tar.gz"
-    TARFILE="aws-sdk-cpp-${AWSSDKCPP_VERSION}.tar.gz"
-    DIRNAME="aws-sdk-cpp-${AWSSDKCPP_VERSION}"
-    download_tarfile
+    if [ ! -e ${CACHE_DIR}/aws-sdk-cpp-${AWSSDKCPP_VERSION}.tar.xz ]; then
+	cd ${BUILD_DIR}
+        git clone --recurse-submodules https://github.com/aws/aws-sdk-cpp
+        cd aws-sdk-cpp
+        git checkout ${AWSSDKCPP_VERSION}
+        rm -rf .git
+	cd ..
+        mv aws-sdk-cpp aws-sdk-cpp-${AWSSDKCPP_VERSION}
+	tar caf ${CACHE_DIR}/aws-sdk-cpp-${AWSSDKCPP_VERSION}.tar.xz aws-sdk-cpp-${AWSSDKCPP_VERSION}
+	rm -rf aws-sdk-cpp-${AWSSDKCPP_VERSION}
+    fi
 
+    (
     export PATH="${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/bin:${INSTALL_DIR}/bin:$PATH"
     export LD_LIBRARY_PATH="${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/lib:${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/lib64:${INSTALL_DIR}/lib:${INSTALL_DIR}/lib:${INSTALL_DIR}/lib64:/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH"
     export CFLAGS="-I${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/include -I${INSTALL_DIR}/include"
@@ -477,14 +459,17 @@ function build_package_aws-sdk-cpp()
                     -DCMAKE_LINK_FLAGS=\"$LDFLAGS\" \
                     -DBUILD_SHARED_LIBS=ON \
                     -DENABLE_TESTING=OFF \
-                    ${BUILD_DIR}/${DIRNAME}"
+                    ${BUILD_DIR}/aws-sdk-cpp-${AWSSDKCPP_VERSION}"
+    VERSION=${AWSSDKCPP_VERSION} \
+	   DIRNAME=aws-sdk-cpp-${AWSSDKCPP_VERSION} \
+	   TARFILE=aws-sdk-cpp-${AWSSDKCPP_VERSION}.tar.xz \
     build_with_cmake
+    )
 }
 
 function build_package_libbson()
 {
     download_tarfile "https://github.com/mongodb/libbson/releases/download/${BSON_VERSION}/libbson-${BSON_VERSION}.tar.gz"
-    export LD_LIBRARY_PATH=${INSTALL_DIR}/lib:$LD_LIBRARY_PATH
     build_with_cmake
 }
 
@@ -492,8 +477,6 @@ function build_package_libbson()
 function build_package_mongo-c-driver()
 {
     download_tarfile "https://github.com/mongodb/mongo-c-driver/releases/download/${MONGOC_VERSION}/mongo-c-driver-${MONGOC_VERSION}.tar.gz"
-    #export PATH="${INSTALL_DIR}/bin:$PATH"
-    #export LD_LIBRARY_PATH="${INSTALL_DIR}/lib:${INSTALL_DIR}/lib64:$LD_LIBRARY_PATH"
     CONFIGURE_ARGS="cmake -G \"$CMAKE_BUILDER\" -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} -DCMAKE_BUILD_TYPE=Release \
                     -DCMAKE_INSTALL_PREFIX=\"${INSTALL_DIR}\" \
                     -DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF \
@@ -504,24 +487,21 @@ function build_package_mongo-c-driver()
                     -DCMAKE_C_COMPILER=$CC \
                     -DBUILD_SHARED_LIBS=ON \
                     ${BUILD_DIR}/${DIRNAME}"
-    PATH="${INSTALL_DIR}/bin:$PATH" \
-    LD_LIBRARY_PATH="${INSTALL_DIR}/lib:${INSTALL_DIR}/lib64:$LD_LIBRARY_PATH" \
-        build_with_cmake
+    build_with_cmake
 }
 function build_package_mongo-cxx-driver()
 {
     #https://mongodb.github.io/mongo-cxx-driver/mongocxx-v3/installation/
     download_tarfile "https://github.com/mongodb/mongo-cxx-driver/archive/r${MONGOCXX_VERSION}.tar.gz" "mongo-cxx-driver-r${MONGOCXX_VERSION}.tar.gz"
-    #export LD_LIBRARY_PATH=${INSTALL_DIR}/lib:${INSTALL_DIR}/lib64:$LD_LIBRARY_PATH
     CONFIGURE_ARGS="cmake -G \"$CMAKE_BUILDER\" -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} -DCMAKE_BUILD_TYPE=Release \
                     -DCMAKE_INSTALL_PREFIX=\"${INSTALL_DIR}\" \
                     -DCMAKE_C_FLAGS=\"$CFLAGS -Wall -Wextra -Wno-attributes -Werror -Wno-error=missing-field-initializers $CFLAGS\" \
                     -DCMAKE_CXX_FLAGS=\"$CXXFLAGS -Wall -Wextra -Wno-attributes  -Wno-error=missing-field-initializers $CXXFLAGS\" \
                     -DBOOST_ROOT=\"${BUILD_DIR}/boost_${BOOST_VERSION//./_}\" \
-                    -DLIBBSON_DIR=\"${INSTALL_DIR}\" \
                     -DLIBMONGOC_DIR=\"${INSTALL_DIR}\" \
                     -DBSONCXX_POLY_USE_BOOST=1 \
                     -DCMAKE_CXX_COMPILER=$CXX \
+                    -DBUILD_VERSION=\"${MONGOCXX_VERSION}\" \
                     -DCMAKE_C_COMPILER=$CC \
                     -DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF \
                     -DBUILD_SHARED_LIBS=ON \
@@ -529,8 +509,7 @@ function build_package_mongo-cxx-driver()
                     -DCMAKE_LIBRARY_PATH=\"${INSTALL_DIR}/lib\" \
                     -DCMAKE_INCLUDE_PATH=\"${INSTALL_DIR}/include\" \
                     ${BUILD_DIR}/${DIRNAME}"
-    LD_LIBRARY_PATH=${INSTALL_DIR}/lib:${INSTALL_DIR}/lib64:$LD_LIBRARY_PATH \
-        build_with_cmake
+    build_with_cmake
 }
 
 function build_package_xerces-c()
@@ -562,9 +541,6 @@ function build_package_tbb()
 {
     download_tarfile "https://github.com/01org/tbb/archive/${INTELTBB_VERSION}.tar.gz" "tbb-${INTELTBB_VERSION}.tar.gz"
     CONFIGURE_ARGS="true"
-    #export PATH=${INSTALL_DIR}/bin:$PATH
-    #export CXXFLAGS="-fno-exceptions -I${INSTALL_DIR}/include ${CXXFLAGS}"
-    #export CFLAGS="-I${INSTALL_DIR}/include ${CFLAGS}"
     MAKE_ARGS="make compiler=clang  verbose=1"
     INSTALL_ARGS="rsync -av --exclude='*.d' --exclude='*.o' ${BUILD_DIR}/${DIRNAME}/build/linux*_release/ ${INSTALL_DIR}/lib && \
                   rsync -av --exclude='*.d' --exclude='*.o' ${BUILD_DIR}/${DIRNAME}/build/linux*_debug/ ${INSTALL_DIR}/lib && \
@@ -580,8 +556,6 @@ function build_package_tiny-dnn()
 {
     #https://github.com/tiny-dnn/tiny-dnn/archive/v1.0.0a3.tar.gz
     download_tarfile "https://github.com/tiny-dnn/tiny-dnn/archive/v${TINYDNN_VERSION}.tar.gz" "tiny-dnn-${TINYDNN_VERSION}.tar.gz"
-    #export PATH="$PATH:${INSTALL_DIR}/bin"
-    #export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${INSTALL_DIR}/lib"
     CONFIGURE_ARGS="cmake -G \"$CMAKE_BUILDER\" -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} -DCMAKE_BUILD_TYPE=Release \
                     -DBUILD_SHARED_LIBS=ON \
                     -DCMAKE_CXX_COMPILER=$MYCXX \
@@ -671,11 +645,6 @@ function build_package_gcc()
 {
     #"depends": [ "binutils","libelf", "libtool", "mpc", "mpfr", "gmp", "ppl", "cloog", "isl" ],
     download_tarfile "http://gcc.gnu.org/pub/gcc/releases/gcc-${GCC_VERSION}/gcc-${GCC_VERSION}.tar.xz"
-    #export LD_LIBRARY_PATH=$INSTALL_DIR/lib:$INSTALL_DIR/lib64
-    #export PATH=$INSTALL_DIR/bin:$PATH
-    #export LDFLAGS="-L${INSTALL_DIR}/lib -L${INSTALL_DIR}/lib64"
-    #export CFLAGS="-O3 -I${INSTALL_DIR}/include -I/usr/include"
-    #export CPPFLAGS="-O3 -I${INSTALL_DIR}/include -I/usr/include"
     CONFIGURE_ARGS="./configure \
     --prefix=${INSTALL_DIR} \
     --enable-languages=c,c++,fortran \
@@ -705,10 +674,6 @@ function build_package_gcc()
 function build_package_libpng()
 {
     download_tarfile "http://prdownloads.sourceforge.net/libpng/libpng-${LIBPNG_VERSION}.tar.xz"
-    export PATH="${INSTALL_DIR}/bin:$PATH"
-    export LD_LIBRARY_PATH="${INSTALL_DIR}/lib:$LD_LIBRARY_PATH"
-    export CPPFLAGS="$CPPFLAGS -I${INSTALL_DIR}/include "
-    export LDFLAGS="-L${INSTALL_DIR}/lib"
     CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR} --with-zlib-prefix=${INSTALL_DIR} "
     build_with_configure
 }
@@ -717,17 +682,12 @@ function build_package_libjpeg-turbo()
 {
     # original https://sourceforge.net/projects/libjpeg/files/libjpeg/6b/jpegsrc.v6b.tar.gz
     download_tarfile "https://sourceforge.net/projects/libjpeg-turbo/files/${LIBJPEGTURBO_VERSION}/libjpeg-turbo-${LIBJPEGTURBO_VERSION}.tar.gz"
-    export PATH="${INSTALL_DIR}/bin:$PATH"
-    export LD_LIBRARY_PATH="${INSTALL_DIR}/lib:$LD_LIBRARY_PATH"
-    CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR} "
-    build_with_configure
+    build_with_cmake
 }
 
 function build_package_libjpeg()
 {
     download_tarfile "https://sourceforge.net/projects/libjpeg/files/libjpeg/${LIBJPEG_VERSION}/jpegsrc.v${LIBJPEG_VERSION}.tar.gz"
-    export PATH="${INSTALL_DIR}/bin:$PATH"
-    export LD_LIBRARY_PATH="${INSTALL_DIR}/lib:$LD_LIBRARY_PATH"
     CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR} "
     build_with_configure
 }
@@ -735,8 +695,6 @@ function build_package_libjpeg()
 function build_package_freetype()
 {
     download_tarfile "https://sourceforge.net/projects/freetype/files/freetype2/${FREETYPE_VERSION}/freetype-${FREETYPE_VERSION}.tar.gz"
-    export PATH="${INSTALL_DIR}/bin:$PATH"
-    export LD_LIBRARY_PATH="${INSTALL_DIR}/lib:$LD_LIBRARY_PATH"
     CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR} "
     build_with_configure
 }
@@ -744,7 +702,6 @@ function build_package_freetype()
 function build_package_jsoncpp()
 {
     download_tarfile "https://github.com/open-source-parsers/jsoncpp/archive/${JSONCPP_VERSION}.tar.gz" "jsoncpp-${JSONCPP_VERSION}.tar.gz"
-    export LD_LIBRARY_PATH=${INSTALL_DIR}/lib:$LD_LIBRARY_PATH
     build_with_cmake
 }
 
