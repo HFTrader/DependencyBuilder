@@ -25,5 +25,6 @@ For version 1.0 we intend to provide support for the major commercial distributi
 For now we are supporting Intel x86_64 but that can change in the future as other platforms are certified.
 
 # TODO
-1. Setup some sort of automated build with docker in aws (EKS or Amazon Batch)
-2. Review and clean up the current code
+1. Update the MSYS/Windows folder
+2. Setup some sort of automated build with docker in aws (EKS or Amazon Batch)
+3. Review and clean up the current code
