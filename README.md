@@ -19,3 +19,11 @@ Every one of these above have done their work to create binaries. However we wan
 4. Maintain a cache of tarballs so not to overwhelm the internet connection
 5. Build everything in a single batch, not interactively
 6. Produce an installation folder that can be zipped and included in your commercial application then shipped to a client
+
+# Supported Architectures
+For version 1.0 we intend to provide support for the major commercial distributions, Redhat and Ubuntu on Linux and Windows 10. 
+For now we are supporting Intel x86_64 but that can change in the future as other platforms are certified.
+
+# TODO
+1. Setup some sort of automated build with docker in aws (EKS or Amazon Batch)
+2. Review and clean up the current code
