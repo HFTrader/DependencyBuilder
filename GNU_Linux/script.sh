@@ -64,7 +64,7 @@ export LD_LIBRARY_PATH="${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib:${LD_LIBRARY_PAT
 export LDFLAGS="-L${INSTALL_DIR}/lib -L${INSTALL_DIR}/lib64 ${LDFLAGS}"
 export CFLAGS="-O3 -I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/ncurses " #-march=$MYARCH -mtune=$MYARCH"
 export CXXFLAGS="-O3 --gcc-toolchain=${INSTALL_DIR} -I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/ncurses " #-march=$MYARCH -mtune=$MYARCH"
-export CPPFLAGS="-O3 --gcc-toolchain=${INSTALL_DIR} -I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/ncurses " #-march=$MYARCH -mtune=$MYARCH"
+export CPPFLAGS="-O3 -I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/ncurses " #-march=$MYARCH -mtune=$MYARCH"
 export FFLAGS="-O3 -fPIC " #-march=$MYARCH -fPIC"
 export PKG_CONFIG_PATH="${INSTALL_DIR}/lib/pkgconfig:${INSTALL_DIR}/lib64/pkgconfig:$PKG_CONFIG_PATH"
 

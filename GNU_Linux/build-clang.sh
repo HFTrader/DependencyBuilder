@@ -30,19 +30,22 @@ if [ ! -e $INSTALL_DIR/clang.done ]; then
         # clone the entire clang project (very slow)
         TARFILE="${CACHE_DIR}/clang-${CLANG_VERSION}.tar.xz"
         if [ ! -e "${TARFILE}" ]; then
+	    (
+	    export LD_LIBRARY_PATH=/lib:/lib64:/usr/lib:/usr/lib64
             pushd "${CACHE_DIR}"
             if [ ! -d "llvm-project" ]; then 
-                git clone https://github.com/llvm/llvm-project.git
+                git clone https://github.com/llvm/llvm-project.git llvm-project
             fi 
-            cd llvm-project 
+            cd llvm-project
             git pull 
             git checkout llvmorg-${CLANG_VERSION}
             cd ..
-            rsync -a llvm-project/ clang-${CLANG_VERSION}/
+	    rsync -a llvm-project/ clang-${CLANG_VERSION}/
             rm -rf clang-${CLANG_VERSION}/.git 
             tar caf "${TARFILE}" clang-${CLANG_VERSION}
             rm -rf clang-${CLANG_VERSION}
-            popd 
+            popd
+	    )
         fi 
 
         # Download all necessary packages
@@ -61,7 +64,6 @@ if [ ! -e $INSTALL_DIR/clang.done ]; then
             export CPPFLAGS="-I$INSTALL_DIR/include -I$INSTALL_DIR/include/ncurses"
             export CXX_FLAGS="-I$INSTALL_DIR/include -I$INSTALL_DIR/include/ncurses"
             
-            eval "$CLANG_ENV" && \            
             cmake -G "$CMAKE_BUILDER"  \
                   -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR  \
                   -DCMAKE_BUILD_TYPE=Release \
