@@ -5,6 +5,7 @@ echo "Compilers: $CC $CXX"
 
 # install swig, libedit
 # This is only necessary so we get the latest and greatest to build the rest
+export PATH="${INSTALL_DIR}/bin:$PATH"
 build_package coreutils
 build_package m4
 build_package bison
@@ -61,8 +62,9 @@ export FC="${INSTALL_DIR}/bin/gfortran-${GCC_VERSION}"
 export PATH="${INSTALL_DIR}/bin:$PATH"
 export LD_LIBRARY_PATH="${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib:${LD_LIBRARY_PATH}"
 export LDFLAGS="-L${INSTALL_DIR}/lib -L${INSTALL_DIR}/lib64 ${LDFLAGS}"
-export CFLAGS="-O3 " #-march=$MYARCH -mtune=$MYARCH"
-export CXXFLAGS="-O3 --gcc-toolchain=${INSTALL_DIR}" #-march=$MYARCH -mtune=$MYARCH"
+export CFLAGS="-O3 -I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/ncurses " #-march=$MYARCH -mtune=$MYARCH"
+export CXXFLAGS="-O3 --gcc-toolchain=${INSTALL_DIR} -I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/ncurses " #-march=$MYARCH -mtune=$MYARCH"
+export CPPFLAGS="-O3 --gcc-toolchain=${INSTALL_DIR} -I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/ncurses " #-march=$MYARCH -mtune=$MYARCH"
 export FFLAGS="-O3 -fPIC " #-march=$MYARCH -fPIC"
 export PKG_CONFIG_PATH="${INSTALL_DIR}/lib/pkgconfig:${INSTALL_DIR}/lib64/pkgconfig:$PKG_CONFIG_PATH"
 

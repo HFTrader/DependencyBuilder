@@ -94,7 +94,7 @@ function build_package_flex()
 function build_package_bison()
 {
     download_tarfile "http://ftp.gnu.org/gnu/bison/bison-${BISON_VERSION}.tar.gz"
-    build_with_configure
+    PATH="$PATH:${INSTALL_DIR}/bin" build_with_configure
 }
 
 function build_package_libpcap()
@@ -674,7 +674,10 @@ function build_package_gcc()
 function build_package_libpng()
 {
     download_tarfile "http://prdownloads.sourceforge.net/libpng/libpng-${LIBPNG_VERSION}.tar.xz"
-    CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR} --with-zlib-prefix=${INSTALL_DIR} "
+    echo "LDFLAGS = $LDFLAGS"
+    echo "CFLAGS = $CFLAGS"
+    echo "CXXFLAGS = $CXXFLAGS "
+    CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR}  "
     build_with_configure
 }
 
