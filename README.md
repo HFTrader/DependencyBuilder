@@ -10,7 +10,7 @@ Of course, there are many package builders out there:
 1. The distributions themselves (Ubuntu, Redhat, Debian, Suse, Gentoo, ArchLinux)
 2. Integrated build systems (Conan, Pkgsrc, vcpkg, etc)
 
-Every one of these above have done their work to create binaries. However every single one has problems. The distributions are limited, in particular Redhat and Windows. Conan offers a build system but it becomes quickly a dependency hell. I like pkgsrc but it is strictly FreeBSD - it's a pain to make it work even on Ubuntu. vcpkg is Microsoft, which draws a line that I dont want to cross. There are others but they are "open source" but do not follow the OSS principles; in the sense they have a business behind it driving them.
+Every one of these above have done their work to create binaries. However every single one has problems. The distributions are limited, in particular Redhat and Windows. Conan offers a build system but it becomes quickly a dependency hell. I like pkgsrc but it is strictly FreeBSD - it's a pain to make it work even on Ubuntu. vcpkg is Microsoft, which draws a line that I dont want to cross. There are others but they are "open source" but do not follow the OSS principles; in the sense they have a business behind it driving them. With open business source, things are engineered such that everything is dandy until you hit an unsolvable glitch and you have to pay them to solve it. Not sure about you, I dont see myself willingfully walking into a trap.
 
 The approach is then to "borrow" the build formulas and patches from other distros and create something very simple and customizable without marrying a business. 
 
