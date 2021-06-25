@@ -17,9 +17,9 @@ function build_package_clang()
 #            -DCMAKE_C_COMPILER=$CC \
 
 if [ ! -e $INSTALL_DIR/clang.done ]; then
-    
+
     #http://btorpey.github.io/blog/2015/01/02/building-clang/
-    CLANG_URL="https://github.com/llvm/llvm-project/" 
+    CLANG_URL="https://github.com/llvm/llvm-project/"
     CLANG_SVN_URL="http://llvm.org/svn/llvm-project/"
 
     if [ ! -f "$INSTALL_DIR/clang.done" ]; then
@@ -33,20 +33,20 @@ if [ ! -e $INSTALL_DIR/clang.done ]; then
 	    (
 	    export LD_LIBRARY_PATH=/lib:/lib64:/usr/lib:/usr/lib64
             pushd "${CACHE_DIR}"
-            if [ ! -d "llvm-project" ]; then 
+            if [ ! -d "llvm-project" ]; then
                 git clone https://github.com/llvm/llvm-project.git llvm-project
-            fi 
+            fi
             cd llvm-project
-            git pull 
+            git pull
             git checkout llvmorg-${CLANG_VERSION}
             cd ..
 	    rsync -a llvm-project/ clang-${CLANG_VERSION}/
-            rm -rf clang-${CLANG_VERSION}/.git 
+            rm -rf clang-${CLANG_VERSION}/.git
             tar caf "${TARFILE}" clang-${CLANG_VERSION}
             rm -rf clang-${CLANG_VERSION}
             popd
 	    )
-        fi 
+        fi
 
         # Download all necessary packages
         tar xaf "${TARFILE}"
@@ -57,15 +57,18 @@ if [ ! -e $INSTALL_DIR/clang.done ]; then
         # cmake
         rm -rf clang-build && mkdir -p clang-build
         cd clang-build
-        (            
+        (
             export PATH="${INSTALL_DIR}/bin:$PATH"
             export LD_LIBRARY_PATH="$INSTALL_DIR/lib:$INSTALL_DIR/lib64:$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu"
+            export LDFLAGS="-L${INSTALL_DIR}/lib -L${INSTALL_DIR}/lib64 -Wl,-rpath,$INSTALL_DIR/lib64 -Wl,-rpath,$INSTALL_DIR/lib"
+            export PKG_CONFIG_PATH="$INSTALL_DIR/lib64/pkgconfig:$INSTALL_DIR/lib/pkgconfig:$PKG_CONFIG_PATH"
             export CFLAGS="-I$INSTALL_DIR/include -I$INSTALL_DIR/include/ncurses"
             export CPPFLAGS="-I$INSTALL_DIR/include -I$INSTALL_DIR/include/ncurses"
             export CXX_FLAGS="-I$INSTALL_DIR/include -I$INSTALL_DIR/include/ncurses"
-            
+
             cmake -G "$CMAKE_BUILDER"  \
                   -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR  \
+                  -DCMAKE_PREFIX_PATH=$INSTALL_DIR \
                   -DCMAKE_BUILD_TYPE=Release \
                   -DCMAKE_CXX_COMPILER=$CXX \
                   -DCMAKE_C_COMPILER=$CC \
@@ -78,7 +81,7 @@ if [ ! -e $INSTALL_DIR/clang.done ]; then
                   -DLLVM_ENABLE_PIC=ON \
                   -DLLVM_PARALLEL_COMPILE_JOBS=$NUMJOBS \
                   -DLLVM_PARALLEL_LINK_JOBS=$NUMJOBS \
-                  -DCMAKE_CXX_LINK_FLAGS=-L$INSTALL_DIR/lib \
+                  -DCMAKE_CXX_LINK_FLAGS="-L$INSTALL_DIR/lib -L$INSTALL_DIR/lib64 -Wl,-rpath,$INSTALL_DIR/lib64 -Wl,-rpath,$INSTALL_DIR/lib" \
                   -DCMAKE_CXX_FLAGS="$CXX_FLAGS -I$INSTALL_DIR/include" \
                   -DLLVM_INCLUDE_TESTS=OFF \
                   -DLLVM_BUILD_EXAMPLES=OFF \
@@ -95,7 +98,7 @@ if [ ! -e $INSTALL_DIR/clang.done ]; then
                   -DLLVM_INCLUDE_EXAMPLES=ON \
                   -DLLVM_INCLUDE_TOOLS=ON \
                   -DLLVM_INCLUDE_TESTS=ON \
-                  -DLLVM_ENABLE_PROJECTS="clang;compiler-rt;lld;polly;clang-tools-extra" \
+                  -DLLVM_ENABLE_PROJECTS="clang;compiler-rt;lld;lldb;libunwind;libcxx;libcxxabi;polly;clang-tools-extra" \
                   -DLLVM_BUILD_LLVM_DYLIB:BOOL=ON \
                   -DLLVM_LINK_LLVM_DYLIB:BOOL=ON \
                   $CLANG_OPTS_CCACHE \

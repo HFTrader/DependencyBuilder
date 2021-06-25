@@ -133,6 +133,13 @@ function build_package_binutils()
     build_with_configure
 }
 
+function build_package_libxml2()
+{
+    download_tarfile "http://xmlsoft.org/sources/libxml2-${LIBXML2_VERSION}.tar.gz"
+    CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR} --disable-static --with-history --with-python=${INSTALL_DIR}/bin/python3"
+    build_with_configure
+}
+
 function build_package_libffi()
 {
     download_tarfile "https://github.com/libffi/libffi/archive/refs/tags/v${LIBFFI_VERSION}.tar.gz" libffi-${LIBFFI_VERSION}.tar.gz
@@ -149,17 +156,21 @@ function build_package_python()
                  --enable-shared \
                  --enable-unicode=ucs4 \
                  --with-dbmliborder=bdb:gdbm \
+                 --enable-optimizations \
                  --with-ensurepip=install \
                  --with-system-ffi=no \
-		 --with-ffi=${INSTALL_DIR} \
+                 --with-ffi=${INSTALL_DIR} \
                  --with-expat=${INSTALL_DIR} \
                  --with-computed-gotos"
     CONFIGURE_ARGS="./configure $PYTHON_ARGS --prefix=${INSTALL_DIR}"
     MAKE_ARGS="make -j$NUMJOBS build_all"
-    LD_LIBRARY_PATH="${INSTALL_DIR}/lib:${INSTALL_DIR}/lib64:$LD_LIBRARY_PATH" CFLAGS="-DNDEBUG -DPy_NDEBUG -I${INSTALL_DIR}/include" CPPFLAGS="-I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/ncurses" \
+    LD_LIBRARY_PATH="${INSTALL_DIR}/lib:${INSTALL_DIR}/lib64:$LD_LIBRARY_PATH" \
+                   CFLAGS="-DNDEBUG -DPy_NDEBUG -I${INSTALL_DIR}/include" \
+                   CPPFLAGS="-I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/ncurses" \
         build_with_configure
-    #cd ${INSTALL_DIR}
-    #${INSTALL_DIR}/bin/pip3 install --user Cheetah Markdown
+    cd ${INSTALL_DIR}
+    ${INSTALL_DIR}/bin/pip3 install pip --upgrade pip
+    ${INSTALL_DIR}/bin/pip3 install --upgrade Markdown pygments pyaml
 }
 
 function build_package_autoconf()
@@ -173,7 +184,7 @@ function build_package_autoconf()
 function build_package_automake()
 {
     download_tarfile "http://ftpmirror.gnu.org/automake/automake-${AUTOMAKE_VERSION}.tar.gz"
-    CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR}" 
+    CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR}"
     PATH=$PATH:${INSTALL_DIR}/bin \
     PERL5LIB=${BUILD_DIR}/${DIRNAME} \
     CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR}"  \
@@ -193,7 +204,7 @@ function build_package_ncurses()
 {
     download_tarfile "http://ftp.gnu.org/gnu/ncurses/ncurses-${NCURSES_VERSION}.tar.gz"
     NCURSES_ARGS='--enable-shared --with-shared --with-cpp-shared'
-    CONFIGURE_ARGS="CPPFLAGS=-P ./configure $NCURSES_ARGS --prefix=${INSTALL_DIR}" 
+    CONFIGURE_ARGS="CPPFLAGS=-P ./configure $NCURSES_ARGS --prefix=${INSTALL_DIR}"
     build_with_configure
 }
 
@@ -393,10 +404,11 @@ function build_package_cryptopp()
     TARFILE="$DIRNAME.tar.gz"
     VERSION="${CRYPTOPP_VERSION}"
 
+    cd ${BUILD_DIR}
     if [ ! -f "${CACHE_DIR}/${TARFILE}" ]; then
         rm -rf cryptopp cryptopp-cmake
         BRANCH="CRYPTOPP_${CRYPTOPP_VERSION//./_}"
-        git clone -b $BRANCH https://github.com/weidai11/cryptopp.git
+        git clone -b $BRANCH https://github.com/weidai11/cryptopp.git cryptopp
         git clone -b $BRANCH https://github.com/noloader/cryptopp-cmake.git
         cp "cryptopp-cmake/cryptopp-config.cmake" "cryptopp"
         cp "cryptopp-cmake/CMakeLists.txt" "cryptopp"
@@ -432,30 +444,31 @@ function build_package_util-linux()
 function build_package_aws-sdk-cpp()
 {
     if [ ! -e ${CACHE_DIR}/aws-sdk-cpp-${AWSSDKCPP_VERSION}.tar.xz ]; then
-	cd ${BUILD_DIR}
+	    cd ${BUILD_DIR}
         git clone --recurse-submodules https://github.com/aws/aws-sdk-cpp
         cd aws-sdk-cpp
         git checkout ${AWSSDKCPP_VERSION}
         rm -rf .git
-	cd ..
+	    cd ..
         mv aws-sdk-cpp aws-sdk-cpp-${AWSSDKCPP_VERSION}
-	tar caf ${CACHE_DIR}/aws-sdk-cpp-${AWSSDKCPP_VERSION}.tar.xz aws-sdk-cpp-${AWSSDKCPP_VERSION}
-	rm -rf aws-sdk-cpp-${AWSSDKCPP_VERSION}
+	    tar caf ${CACHE_DIR}/aws-sdk-cpp-${AWSSDKCPP_VERSION}.tar.xz aws-sdk-cpp-${AWSSDKCPP_VERSION}
+	    rm -rf aws-sdk-cpp-${AWSSDKCPP_VERSION}
     fi
 
     (
     export PATH="${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/bin:${INSTALL_DIR}/bin:$PATH"
     export LD_LIBRARY_PATH="${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/lib:${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/lib64:${INSTALL_DIR}/lib:${INSTALL_DIR}/lib:${INSTALL_DIR}/lib64:/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH"
     export CFLAGS="-I${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/include -I${INSTALL_DIR}/include"
-    export CPPFLAGS="-I${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/include -I${INSTALL_DIR}/include"
+    export CPPFLAGS="-Wno-error -I${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/include -I${INSTALL_DIR}/include"
     export LDFLAGS="-L${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/lib -L${INSTALL_DIR}/opensSl-${OPENSSL_VERSION}/lib64 -L${INSTALL_DIR}/lib -L${INSTALL_DIR}/lib64"
     export OPENSSL_ROOT_DIR="${INSTALL_DIR}/openssl-${OPENSSL_VERSION}"
-    CONFIGURE_ARGS="cmake -G \"$CMAKE_BUILDER\" -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} -DCMAKE_BUILD_TYPE=Release \
+    CONFIGURE_ARGS="patch ${BUILD_DIR}/aws-sdk-cpp-${AWSSDKCPP_VERSION}/crt/aws-crt-cpp/crt/aws-c-common/cmake/AwsCFlags.cmake ${SCRIPT_DIR}/GNU_Linux/aws-sdk-cpp_outline-atomics.patch && \
+                    cmake -G \"$CMAKE_BUILDER\" -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} -DCMAKE_BUILD_TYPE=Release \
                     -DCMAKE_INCLUDE_PATH=\"${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/include/openssl:${INSTALL_DIR}/openssl\" \
                     -DCMAKE_CXX_COMPILER=$CXX \
                     -DCMAKE_C_COMPILER=$CC  \
                     -DCMAKE_BUILD_TYPE=Release \
-                    -DCMAKE_CXX_FLAGS=\"-I${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/include/openssl -I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/openssl\" \
+                    -DCMAKE_CXX_FLAGS=\"-Wno-error -I${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/include/openssl -I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/openssl\" \
                     -DCMAKE_LINK_FLAGS=\"$LDFLAGS\" \
                     -DBUILD_SHARED_LIBS=ON \
                     -DENABLE_TESTING=OFF \
@@ -463,7 +476,7 @@ function build_package_aws-sdk-cpp()
     VERSION=${AWSSDKCPP_VERSION} \
 	   DIRNAME=aws-sdk-cpp-${AWSSDKCPP_VERSION} \
 	   TARFILE=aws-sdk-cpp-${AWSSDKCPP_VERSION}.tar.xz \
-    build_with_cmake
+       build_with_cmake
     )
 }
 
@@ -607,7 +620,7 @@ function build_package_qt5()
 
 function build_package_libelf()
 {
-    download_tarfile "https://fossies.org/linux/misc/old/libelf-${LIBELF_VERSION}.tar.gz" 
+    download_tarfile "https://fossies.org/linux/misc/old/libelf-${LIBELF_VERSION}.tar.gz"
     CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR} --disable-static "
     build_with_configure
 }
@@ -664,7 +677,7 @@ function build_package_gcc()
     --with-gmp=${INSTALL_DIR} \
     --with-mpfr=${INSTALL_DIR} \
     --with-mpc=${INSTALL_DIR} \
-    --with-isl=${INSTALL_DIR}"    
+    --with-isl=${INSTALL_DIR}"
     MAKE_ARGS="make -j$NUMJOBS configure-build-libiberty && make -j$NUMJOBS all-build-libiberty && make -j$NUMJOBS all-gcc && make -j$NUMJOBS all-target-libgcc && make  -j$NUMJOBS "
     INSTALL_ARGS="make install-gcc && make install-target-libgcc && make install"
     LDFLAGS="-L${INSTALL_DIR}/lib -L${INSTALL_DIR}/lib64" PATH="${INSTALL_DIR}/bin:${PATH}" LD_LIBRARY_PATH="${INSTALL_DIR}/lib:${INSTALL_DIR}/lib64" \

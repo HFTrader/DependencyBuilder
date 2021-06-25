@@ -33,12 +33,14 @@ build_package tar
 build_package libedit
 build_package openssl
 build_package pkgconfig
+build_package libxml2
 
 export CC=${INSTALL_DIR}/bin/gcc-${GCC_VERSION}
 export CXX=${INSTALL_DIR}/bin/g++-${GCC_VERSION}
 export PATH="${INSTALL_DIR}/bin:$PATH"
 export OPENSSL_ROOT_DIR="${INSTALL_DIR}/openssl-${OPENSSL_VERSION}"
 export LD_LIBRARY_PATH="${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib:${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/lib:${LD_LIBRARY_PATH}"
+export PYTHONUSERBASE=${INSTALL_DIR}
 
 build_package python
 build_package ninja
@@ -91,7 +93,7 @@ build_package libpng
 build_package freetype
 build_package jsoncpp
 build_package double-conversion
-#build_package aws-sdk-cpp
+build_package aws-sdk-cpp
 #build_package qt5
 
 #build_package libx11
