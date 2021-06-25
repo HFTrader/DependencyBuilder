@@ -462,7 +462,7 @@ function build_package_aws-sdk-cpp()
     export CPPFLAGS="-Wno-error -I${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/include -I${INSTALL_DIR}/include"
     export LDFLAGS="-L${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/lib -L${INSTALL_DIR}/opensSl-${OPENSSL_VERSION}/lib64 -L${INSTALL_DIR}/lib -L${INSTALL_DIR}/lib64"
     export OPENSSL_ROOT_DIR="${INSTALL_DIR}/openssl-${OPENSSL_VERSION}"
-    CONFIGURE_ARGS="patch ${BUILD_DIR}/aws-sdk-cpp-${AWSSDKCPP_VERSION}/crt/aws-crt-cpp/crt/aws-c-common/cmake/AwsCFlags.cmake ${SCRIPT_DIR}/GNU_Linux/aws-sdk-cpp_outline-atomics.patch && \
+    CONFIGURE_ARGS="patch ${BUILD_DIR}/aws-sdk-cpp-${AWSSDKCPP_VERSION}/crt/aws-crt-cpp/crt/aws-c-common/cmake/AwsCFlags.cmake ${SCRIPT_DIR}/GNU_Linux/patches/aws-sdk-cpp_outline-atomics.patch && \
                     cmake -G \"$CMAKE_BUILDER\" -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} -DCMAKE_BUILD_TYPE=Release \
                     -DCMAKE_INCLUDE_PATH=\"${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/include/openssl:${INSTALL_DIR}/openssl\" \
                     -DCMAKE_CXX_COMPILER=$CXX \
