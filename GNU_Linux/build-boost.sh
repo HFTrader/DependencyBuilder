@@ -42,7 +42,7 @@ EOF
         LD_LIBRARY_PATH=${INSTALL_DIR}/lib:$LD_LIBRARY_PATH \
         ./bootstrap.sh -includedir=${INSTALL_DIR}/include \
              -libdir=${INSTALL_DIR}/lib --with-toolset=clang \
-             --with-python=${INSTALL_DIR}/bin/python \
+             --with-python=${INSTALL_DIR}/bin/python3 \
              --with-python-root=${INSTALL_DIR} || exit 1
     fi
 
