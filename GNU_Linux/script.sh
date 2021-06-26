@@ -44,7 +44,7 @@ export PYTHONUSERBASE=${INSTALL_DIR}
 
 build_package python
 build_package ninja
-
+build_package pybind11
 
 export CMAKE_BUILDER=Ninja
 

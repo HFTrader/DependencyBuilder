@@ -25,12 +25,12 @@ if [ ! -f "$INSTALL_DIR/boost.done" ]; then
     if [ ! -e $CACHE_DIR/$BOOST_TAR_FILE ]; then
         wget --no-check-certificate https://sourceforge.net/projects/boost/files/boost/${BOOST_VERSION}/${BOOST_TAR_FILE} -O $CACHE_DIR/$BOOST_TAR_FILE || exit 1
     fi
-    tar xzf $CACHE_DIR/$BOOST_TAR_FILE
+    tar xaf $CACHE_DIR/$BOOST_TAR_FILE
     cd $BOOST_DIR
 
     cat <<EOF > tools/build/src/user-config.jam
-using python : $PYTHON_VERSION : ${INSTALL_DIR}/bin/python : <compileflags>-I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/python${PYTHON_VERSION};
-#using clang-custom  : $CLANG_VERSION : : <compileflags>-I${INSTALL_DIR}/include <linkflags>-L${INSTALL_DIR}/lib ;
+using python : $PYTHON_VERSION : ${INSTALL_DIR}/bin/python3 : <compileflags>-I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/python${PYTHON_VERSION};
+#using clang-custom  : $CLANG_VERSION : : <compileflags>-I${INSTALL_DIR}/include <linkflags>-L${INSTALL_DIR}/lib -L${INSTALL_DIR}/lib64;
 EOF
 
     # make build binary

@@ -292,6 +292,35 @@ function build_package_libcurl()
         build_with_configure
 }
 
+function build_package_pybind11()
+{
+    PACKAGE=pybind11
+    DIRNAME="pybind11_${PYBIND11_VERSION}"
+    TARFILE="${DIRNAME}.tar.gz"
+    VERSION="${PYBIND11_VERSION}"
+
+    cd ${BUILD_DIR}
+    if [ ! -f "${CACHE_DIR}/${TARFILE}" ]; then
+        rm -rf pybind11 pybind11-cmake
+        BRANCH="v${PYBIND11_VERSION}"
+        git clone -b $BRANCH https://github.com/pybind/pybind11.git pybind11
+        rm -rf pybind11/.git
+
+        # create tarball
+        rm -rf "${DIRNAME}"
+        mv pybind11 "${DIRNAME}"
+        tar caf "${CACHE_DIR}/${TARFILE}" "${DIRNAME}"
+        rm -rf "${DIRNAME}"
+    fi
+
+    CONFIGURE_ARGS="cmake -G \"$CMAKE_BUILDER\" -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} -DCMAKE_BUILD_TYPE=Release \
+                    -DCMAKE_INCLUDE_PATH=\"${INSTALL_DIR}\" \
+                    -DCMAKE_CXX_COMPILER=$CXX \
+                    -DCMAKE_C_COMPILER=$CC \
+                    ${BUILD_DIR}/${DIRNAME}"
+    build_with_cmake
+}
+
 function build_package_ninja()
 {
     download_tarfile "https://github.com/ninja-build/ninja/archive/v${NINJA_VERSION}.tar.gz" \
