@@ -94,7 +94,7 @@ build_package freetype
 build_package jsoncpp
 build_package double-conversion
 build_package aws-sdk-cpp
-#build_package qt5
+build_package qt5
 
 #build_package libx11
 #build_package libxrender

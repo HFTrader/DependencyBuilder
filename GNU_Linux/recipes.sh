@@ -601,7 +601,7 @@ function build_package_tiny-dnn()
     download_tarfile "https://github.com/tiny-dnn/tiny-dnn/archive/v${TINYDNN_VERSION}.tar.gz" "tiny-dnn-${TINYDNN_VERSION}.tar.gz"
     CONFIGURE_ARGS="cmake -G \"$CMAKE_BUILDER\" -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} -DCMAKE_BUILD_TYPE=Release \
                     -DBUILD_SHARED_LIBS=ON \
-                    -DCMAKE_CXX_COMPILER=$MYCXX \
+                    -DCMAKE_CXX_COMPILER=$CXX \
                     -DUSE_OMP=ON \
                     -DUSE_TBB=ON \
                     -DTBB_INSTALL_DIR=${INSTALL_DIR} \
@@ -627,13 +627,14 @@ function build_package_qt5()
     download_tarfile "http://download.qt.io/official_releases/qt/${QT_VERSION%.*}/${QT_VERSION}/single/qt-everywhere-src-${QT_VERSION}.tar.xz"
     #export PATH="${INSTALL_DIR}/bin:$PATH"
     #export LD_LIBRARY_PATH="${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/lib:${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/lib64:${INSTALL_DIR}/lib:${INSTALL_DIR}/lib64:/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH"
-    CONFIGURE_ARGS="./configure \
+    CONFIGURE_ARGS="( patch -p1 -d ${BUILD_DIR}/qt-everywhere-src-${QT_VERSION} < ${SCRIPT_DIR}/GNU_Linux/patches/qt5-with-clang11.patch ) && \
+                    ./configure \
                               -prefix ${INSTALL_DIR}/qt${QT_VERSION} \
                               -opensource -confirm-license -release -shared  \
                               -no-avx -no-avx2 -c++std c++14 \
                               -skip qtsensors -skip qtlocation -skip qtconnectivity -skip qtandroidextras \
                               -skip qtx11extras -skip qtmacextras -skip qtwayland -skip qtquickcontrols \
-                              -skip qtquickcontrols2 -skip qtscript -skip qtactiveqt \
+                              -skip qtquickcontrols2 -skip qtscript -skip qtdoc -skip qtactiveqt \
                               -skip qtwebengine -skip qtwebchannel \
                               -no-opengl  \
                               -nomake examples -nomake tests  \
@@ -642,7 +643,7 @@ function build_package_qt5()
                               -I${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/include \
                               -I${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/include/openssl \
                               -L${INSTALL_DIR}/lib \
-                              -platform linux-clang "
+                              -platform linux-clang"
     PATH="${INSTALL_DIR}/bin:${PATH}" \
     LD_LIBRARY_PATH="${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/lib:${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/lib64:${INSTALL_DIR}/lib:${INSTALL_DIR}/lib64:/usr/lib/x86_64-linux-gnu/:${LD_LIBRARY_PATH}" \
         build_with_configure
@@ -755,7 +756,12 @@ function build_package_double-conversion()
 {
     download_tarfile "https://github.com/google/double-conversion/archive/v${DOUBLECONVERSION_VERSION}.tar.gz" \
                      "double-conversion-${DOUBLECONVERSION_VERSION}.tar.gz"
-    build_with_cmake
+    CONFIGURE_ARGS="cmake -G \"$CMAKE_BUILDER\" -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} -DCMAKE_BUILD_TYPE=Release \
+                    -DBUILD_SHARED_LIBS=ON \
+                    -DCMAKE_CXX_COMPILER=$CXX \
+                    -DCMAKE_C_COMPILER=$CC \
+                    ${BUILD_DIR}/${DIRNAME}" \
+      build_with_cmake
 }
 
 function build_package_libxrender()
