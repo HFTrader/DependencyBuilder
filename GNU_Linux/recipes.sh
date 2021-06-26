@@ -442,6 +442,7 @@ function build_package_cryptopp()
         cp "cryptopp-cmake/cryptopp-config.cmake" "cryptopp"
         cp "cryptopp-cmake/CMakeLists.txt" "cryptopp"
         rm -rf cryptopp-cmake
+        rm -rf cryptopp/.git
 
         # create tarball
         rm -rf "${DIRNAME}"
