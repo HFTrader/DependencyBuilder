@@ -1,0 +1,12 @@
+diff -Naur qt-everywhere-src-5.15.2.orig/qtbase/src/corelib/global/qglobal.h qt-everywhere-src-5.15.2.new/qtbase/src/corelib/global/qglobal.h
+--- qt-everywhere-src-5.15.2.orig/qtbase/src/corelib/global/qglobal.h	2020-10-27 03:02:11.000000000 -0500
++++ qt-everywhere-src-5.15.2.new/qtbase/src/corelib/global/qglobal.h	2021-06-26 17:08:57.825282930 -0500
+@@ -45,6 +45,8 @@
+ #  include <type_traits>
+ #  include <cstddef>
+ #  include <utility>
++#  include <algorithm>
++#  include <limits>
+ #endif
+ #ifndef __ASSEMBLER__
+ #  include <assert.h>

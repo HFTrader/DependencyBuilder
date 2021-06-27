@@ -33,7 +33,6 @@ function build_package_swig()
 {
     download_tarfile "http://prdownloads.sourceforge.net/swig/swig-${SWIG_VERSION}.tar.gz"
     PCRE_CONFIG="${INSTALL_DIR}/bin/pcre-config" \
-    PATH="$PATH:${INSTALL_DIR}/bin" \
         build_with_configure
 }
 
@@ -170,7 +169,7 @@ function build_package_python()
         build_with_configure
     cd ${INSTALL_DIR}
     ${INSTALL_DIR}/bin/pip3 install pip --upgrade pip
-    ${INSTALL_DIR}/bin/pip3 install --upgrade Markdown pygments pyaml
+    ${INSTALL_DIR}/bin/pip3 install --upgrade Markdown Cheetah3 pygments pyaml
 }
 
 function build_package_autoconf()
@@ -218,18 +217,18 @@ function build_package_openonload()
     if [ ! -e "${CACHE_DIR}/${TARFILE}" ]; then
         URL="https://support-nic.xilinx.com/wp/onload?sd=SF-109585-LS-35&pe=SF-122921-DH-4"
         wget --no-check-certificate "$URL" -O "${CACHE_DIR}/${ZIP_FILE}"
-	mkdir -p ${BUILD_DIR}
-	cd ${BUILD_DIR}
-	rm onload-${OPENONLOAD_VERSION}*
-	unzip ${CACHE_DIR}/${ZIP_FILE}
-	mv -v ${TARFILE} ${CACHE_DIR}/${TARFILE}
-	rm onload-${OPENONLOAD_VERSION}*
+	    mkdir -p ${BUILD_DIR}
+	    cd ${BUILD_DIR}
+	    rm -rf onload-${OPENONLOAD_VERSION}
+	    unzip ${CACHE_DIR}/${ZIP_FILE}
+	    mv -v ${TARFILE} ${CACHE_DIR}/${TARFILE}
     fi
 
     #ENV_ARGS="CPPFLAGS=\"-I$INSTALL_DIR/include\" LD_LIBRARY_PATH=${INSTALL_DIR}/lib PATH=${INSTALL_DIR}/bin:$PATH"
-    CONFIGURE_ARGS="true"
-    MAKE_ARGS="scripts/onload_build --user64"
-    INSTALL_ARGS="(PATH=${INSTALL_DIR}/bin:$PATH PERL5LIBS=$INSTALL_DIR/share/autoconf/Autom4te:$PERL5LIBS i_prefix=$BUILD_DIR/$DIRNAME/install_tmp scripts/onload_install \
+    CONFIGURE_ARGS="true" \
+    MAKE_ARGS="scripts/onload_build --user64" \
+    INSTALL_ARGS="(PATH=${INSTALL_DIR}/bin:$PATH PERL5LIBS=$INSTALL_DIR/share/autoconf/Autom4te:$PERL5LIBS \
+                i_prefix=$BUILD_DIR/$DIRNAME/install_tmp scripts/onload_install \
                 --userfiles --nobuild --noinstallcheck || true) && \
                 rsync -av $BUILD_DIR/$DIRNAME/install_tmp/usr/ ${INSTALL_DIR}/ && \
                 rsync -av $BUILD_DIR/$DIRNAME/src/include/ ${INSTALL_DIR}/include/"

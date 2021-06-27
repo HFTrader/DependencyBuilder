@@ -73,6 +73,9 @@ if [ ! -e $INSTALL_DIR/clang.done ]; then
                   -DCMAKE_CXX_COMPILER=$CXX \
                   -DCMAKE_C_COMPILER=$CC \
                   -DCMAKE_EXPORT_COMMANDS=ON \
+                  -DCMAKE_CXX_LINK_FLAGS="-L$INSTALL_DIR/lib -L$INSTALL_DIR/lib64 -Wl,-rpath,$INSTALL_DIR/lib64 -Wl,-rpath,$INSTALL_DIR/lib" \
+                  -DCMAKE_CXX_FLAGS="$CXX_FLAGS -I$INSTALL_DIR/include" \
+                  -DCMAKE_SHARED_LINKER_FLAGS="-L${INSTALL_DIR}/lib" \
                   -DLLVM_ENABLE_SPHINX=OFF \
                   -DLLVM_ENABLE_DOXYGEN=OFF \
                   -DLLVM_INSTALL_UTILS=ON \
@@ -81,26 +84,25 @@ if [ ! -e $INSTALL_DIR/clang.done ]; then
                   -DLLVM_ENABLE_PIC=ON \
                   -DLLVM_PARALLEL_COMPILE_JOBS=$NUMJOBS \
                   -DLLVM_PARALLEL_LINK_JOBS=$NUMJOBS \
-                  -DCMAKE_CXX_LINK_FLAGS="-L$INSTALL_DIR/lib -L$INSTALL_DIR/lib64 -Wl,-rpath,$INSTALL_DIR/lib64 -Wl,-rpath,$INSTALL_DIR/lib" \
-                  -DCMAKE_CXX_FLAGS="$CXX_FLAGS -I$INSTALL_DIR/include" \
                   -DLLVM_INCLUDE_TESTS=OFF \
                   -DLLVM_BUILD_EXAMPLES=OFF \
                   -DLLVM_BUILD_TESTS=OFF \
                   -DLLVM_BUILD_EXTERNAL_COMPILER_RT=On \
                   -DLLVM_BUILD_TOOLS=ON \
                   -DLLVM_INCLUDE_EXAMPLES=OFF \
-                  -DCLANG_BUILD_EXAMPLES=OFF \
-                  -DCMAKE_SHARED_LINKER_FLAGS="-L${INSTALL_DIR}/lib" \
-                  -DCLANG_BUILD_TOOLS=ON \
-                  -DCLANG_ENABLE_STATIC_ANALIZER=ON \
-                  -DCLANG_VENDOR="Vitorian LLC" \
                   -DLLVM_INCLUDE_DOCS=OFF \
-                  -DLLVM_INCLUDE_EXAMPLES=ON \
+                  -DLLVM_INCLUDE_EXAMPLES=OFF \
                   -DLLVM_INCLUDE_TOOLS=ON \
-                  -DLLVM_INCLUDE_TESTS=ON \
+                  -DLLVM_INCLUDE_TESTS=OFF \
                   -DLLVM_ENABLE_PROJECTS="clang;compiler-rt;lld;lldb;libunwind;libcxx;libcxxabi;polly;clang-tools-extra" \
                   -DLLVM_BUILD_LLVM_DYLIB:BOOL=ON \
                   -DLLVM_LINK_LLVM_DYLIB:BOOL=ON \
+                  -DLLVM_DYLIB_COMPONENTS:STRING=all \
+                  -DCLANG_BUILD_EXAMPLES=OFF \
+                  -DCLANG_BUILD_TOOLS=ON \
+                  -DCLANG_ENABLE_STATIC_ANALIZER=ON \
+                  -DCLANG_VENDOR="Vitorian LLC" \
+                  -DBUILD_SHARED_LIBS:BOOL=OFF \
                   $CLANG_OPTS_CCACHE \
                   $BUILD_DIR/clang-${CLANG_VERSION}/llvm && \
             cmake --build . -- -j$NUMJOBS && \
@@ -110,7 +112,7 @@ if [ ! -e $INSTALL_DIR/clang.done ]; then
 
         rm -f ${BUILD_DIR}/clang.$STAGE.before ${BUILD_DIR}/clang.after
         rm -rf ${BUILD_DIR}/clang-build
-        rm -rf ${BUILD_DIR}/${CLANG_DIR}
+        rm -rf ${BUILD_DIR}/clang-${CLANG_VERSION}
         echo $(date +%Y%m%d-%H%M%S) > $INSTALL_DIR/clang.done
     fi
 fi
