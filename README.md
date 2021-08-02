@@ -5,6 +5,8 @@ Builds dependencies for your C++ application on Linux and Windows
 
 For a commercial C++ application be deployed, it needs at minimum a collection of common libraries (dependencies) and an up-to-date set of building tools. However the variety of environments - machines and operating systems - is so distinct from each other that one has no choice other than building all libraries by themselves. 
 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Z8Z85JMPK)
+
 Of course, there are many package builders out there: 
 
 1. The distributions themselves (Ubuntu, Redhat, Debian, Suse, Gentoo, ArchLinux)
