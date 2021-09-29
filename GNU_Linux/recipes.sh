@@ -135,7 +135,7 @@ function build_package_binutils()
 function build_package_libxml2()
 {
     download_tarfile "http://xmlsoft.org/sources/libxml2-${LIBXML2_VERSION}.tar.gz"
-    CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR} --disable-static --with-history --with-python=${INSTALL_DIR}/bin/python3"
+    CONFIGURE_ARGS="./configure --prefix=${INSTALL_DIR} --disable-static --with-history --with-python=${INSTALL_DIR}/bin/python3 --with-python-install-dir=${INSTALL_DIR}/lib"
     build_with_configure
 }
 
@@ -215,7 +215,7 @@ function build_package_openonload()
     TARFILE="onload-${OPENONLOAD_VERSION}.tgz"
     ZIP_FILE="openonload-${OPENONLOAD_VERSION}.zip"
     if [ ! -e "${CACHE_DIR}/${TARFILE}" ]; then
-        URL="https://support-nic.xilinx.com/wp/onload?sd=SF-109585-LS-35&pe=SF-122921-DH-4"
+        URL="https://support-nic.xilinx.com/wp/onload?sd=SF-109585-LS-36&pe=SF-122921-DH-5"
         wget --no-check-certificate "$URL" -O "${CACHE_DIR}/${ZIP_FILE}"
 	    mkdir -p ${BUILD_DIR}
 	    cd ${BUILD_DIR}
