@@ -418,6 +418,7 @@ function build_package_yaml-cpp()
                             -DCMAKE_CXX_COMPILER=$CXX \
                             -DCMAKE_C_COMPILER=$CC \
                             -DBUILD_SHARED_LIBS=ON \
+			    -DYAML_CPP_BUILD_TESTS=OFF \
                             -DCMAKE_PREFIX_PATH=\"${INSTALL_DIR}\" \
                             -DCMAKE_LIBRARY_PATH=\"${INSTALL_DIR}/lib\" \
                             -DCMAKE_INCLUDE_PATH=\"${INSTALL_DIR}/include\" \
