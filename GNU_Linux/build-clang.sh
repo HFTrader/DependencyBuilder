@@ -60,7 +60,7 @@ if [ ! -e $INSTALL_DIR/clang.done ]; then
         (
             export PATH="${INSTALL_DIR}/bin:$PATH"
             export LD_LIBRARY_PATH="$INSTALL_DIR/lib:$INSTALL_DIR/lib64:$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu"
-            export LDFLAGS="-L${INSTALL_DIR}/lib -L${INSTALL_DIR}/lib64 -Wl,-rpath,$INSTALL_DIR/lib64 -Wl,-rpath,$INSTALL_DIR/lib"
+            export LDFLAGS="-L${INSTALL_DIR}/lib -L${INSTALL_DIR}/lib64 -Wl,-rpath,$INSTALL_DIR/lib64 -Wl,-rpath,$INSTALL_DIR/lib -lncurses"
             export PKG_CONFIG_PATH="$INSTALL_DIR/lib64/pkgconfig:$INSTALL_DIR/lib/pkgconfig:$PKG_CONFIG_PATH"
             export CFLAGS="-I$INSTALL_DIR/include -I$INSTALL_DIR/include/ncurses"
             export CPPFLAGS="-I$INSTALL_DIR/include -I$INSTALL_DIR/include/ncurses"
@@ -94,7 +94,7 @@ if [ ! -e $INSTALL_DIR/clang.done ]; then
                   -DLLVM_INCLUDE_EXAMPLES=OFF \
                   -DLLVM_INCLUDE_TOOLS=ON \
                   -DLLVM_INCLUDE_TESTS=OFF \
-                  -DLLVM_ENABLE_PROJECTS="clang;compiler-rt;lld;lldb;libunwind;libcxx;libcxxabi;polly;clang-tools-extra" \
+                  -DLLVM_ENABLE_PROJECTS="clang;compiler-rt;lld;lldb;libunwind;polly;clang-tools-extra" \
                   -DLLVM_BUILD_LLVM_DYLIB:BOOL=ON \
                   -DLLVM_LINK_LLVM_DYLIB:BOOL=ON \
                   -DLLVM_DYLIB_COMPONENTS:STRING=all \
@@ -106,7 +106,7 @@ if [ ! -e $INSTALL_DIR/clang.done ]; then
                   $CLANG_OPTS_CCACHE \
                   $BUILD_DIR/clang-${CLANG_VERSION}/llvm && \
             cmake --build . -- -j$NUMJOBS && \
-            cmake --build . --target install && \
+            cmake --build . --target install/strip && \
             echo $(date +%Y%m%d-%H%M%S) > $INSTALL_DIR/clang.done \
         ) > $BUILD_DIR/clang.log 2> $BUILD_DIR/clang.err || exit 1
 

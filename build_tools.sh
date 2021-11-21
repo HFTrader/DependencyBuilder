@@ -129,7 +129,7 @@ function build_with_cmake()
 {
     TMPDIR=${TMPDIR:-"$BUILD_DIR/$DIRNAME/build-tmp"}
     MAKE_ARGS=${MAKE_ARGS:-"cmake --build . -- -j$NUMJOBS"}
-    INSTALL_ARGS=${INSTALL_ARGS:-"cmake --build . --target install"}
+    INSTALL_ARGS=${INSTALL_ARGS:-"cmake --build . --target install/strip"}
     CONFIGURE_ARGS=${CONFIGURE_ARGS:-"cmake -G \"$CMAKE_BUILDER\" -DCMAKE_INSTALL_PREFIX=\"${INSTALL_DIR}\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=\"${INSTALL_DIR}\" ${BUILD_DIR}/${DIRNAME} " }
     build_generic $*
 }
@@ -158,4 +158,28 @@ function build_package()
         fi
         build_package_$PACKAGE
     ) || exit 1
+}
+
+function git_checkout()
+{
+    PACKAGE="$1"
+    VERSION="$2"
+    URL="$3"
+    TAG="$4"
+    DIRNAME="${PACKAGE}-${VERSION}"
+    TARFILE="${DIRNAME}.tar.xz"
+
+    pushd "${BUILD_DIR}"
+    rm -rf "${DIRNAME}"
+    if [ ! -f "${CACHE_DIR}/${TARFILE}" ]; then
+        git clone "${URL}.git" "${DIRNAME}"
+        pushd "${DIRNAME}"
+        git pull
+        git checkout "${TAG}"
+        rm -rf .git
+        popd
+        tar caf "${CACHE_DIR}/${TARFILE}" "${DIRNAME}"
+        rm -rf "${DIRNAME}"
+    fi
+    popd
 }

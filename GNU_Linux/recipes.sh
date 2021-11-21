@@ -17,7 +17,7 @@ function build_package_pkgconfig()
 
 function build_package_pcre()
 {
-    download_tarfile "https://ftp.pcre.org/pub/pcre/pcre-${PCRE_VERSION}.tar.gz"
+    download_tarfile "https://sourceforge.net/projects/pcre/files/pcre/${PCRE_VERSION}/pcre-${PCRE_VERSION}.tar.gz"
     build_with_configure
 }
 
@@ -492,7 +492,7 @@ function build_package_aws-sdk-cpp()
     export CPPFLAGS="-Wno-error -I${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/include -I${INSTALL_DIR}/include"
     export LDFLAGS="-L${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/lib -L${INSTALL_DIR}/opensSl-${OPENSSL_VERSION}/lib64 -L${INSTALL_DIR}/lib -L${INSTALL_DIR}/lib64"
     export OPENSSL_ROOT_DIR="${INSTALL_DIR}/openssl-${OPENSSL_VERSION}"
-    CONFIGURE_ARGS="patch ${BUILD_DIR}/aws-sdk-cpp-${AWSSDKCPP_VERSION}/crt/aws-crt-cpp/crt/aws-c-common/cmake/AwsCFlags.cmake ${SCRIPT_DIR}/GNU_Linux/patches/aws-sdk-cpp_outline-atomics.patch && \
+    CONFIGURE_ARGS="patch ${BUILD_DIR}/aws-sdk-cpp-${AWSSDKCPP_VERSION}/aws-cpp-sdk-text-to-speech/source/text-to-speech/TextToSpeechManager.cpp ${SCRIPT_DIR}/GNU_Linux/patches/aws-sdk-cpp_amountRead.patch && \
                     cmake -G \"$CMAKE_BUILDER\" -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} -DCMAKE_BUILD_TYPE=Release \
                     -DCMAKE_INCLUDE_PATH=\"${INSTALL_DIR}/openssl-${OPENSSL_VERSION}/include/openssl:${INSTALL_DIR}/openssl\" \
                     -DCMAKE_CXX_COMPILER=$CXX \
@@ -509,6 +509,43 @@ function build_package_aws-sdk-cpp()
        build_with_cmake
     )
 }
+
+function build_package_robinmap()
+{
+    git_checkout robinmap ${ROBINMAP_VERSION} "https://github.com/Tessil/robin-map"  "v${ROBINMAP_VERSION}"
+    build_with_cmake
+}
+
+function build_package_arrayhash()
+{
+    git_checkout arrayhash "${ARRAYHASH_VERSION}" "https://github.com/Tessil/array-hash" "v${ARRAYHASH_VERSION}"
+    build_with_cmake
+}
+
+function build_package_sparsemap()
+{
+    git_checkout sparsemap "${SPARSEMAP_VERSION}" "https://github.com/Tessil/sparse-map" "v${SPARSEMAP_VERSION}"
+    build_with_cmake
+}
+
+function build_package_hopscotchmap()
+{
+    git_checkout hopscotchmap "${HOPSCOTCHMAP_VERSION}" "https://github.com/Tessil/hopscotch-map" "v${HOPSCOTCHMAP_VERSION}"
+    build_with_cmake
+}
+
+function build_package_sparsehash()
+{
+    git_checkout sparsehash "${SPARSEHASH_VERSION}" "https://github.com/sparsehash/sparsehash" "sparsehash-${SPARSEHASH_VERSION}"
+    build_with_configure
+}
+
+function build_package_abseil()
+{
+    git_checkout abseil "${ABSEIL_VERSION}" "https://github.com/abseil/abseil-cpp" "${ABSEIL_VERSION}"
+    build_with_cmake
+}
+
 
 function build_package_libbson()
 {

@@ -95,6 +95,12 @@ build_package jsoncpp
 build_package double-conversion
 build_package aws-sdk-cpp
 build_package qt5
+build_package abseil
+build_package robinmap
+build_package arrayhash
+build_package sparsemap
+build_package hopscotchmap
+build_package sparsehash
 
 #build_package libx11
 #build_package libxrender
