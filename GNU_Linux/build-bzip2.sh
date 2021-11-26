@@ -51,8 +51,9 @@ function install_bzip2
 
 function build_package_bzip2
 {
-    download_tarfile "https://sourceforge.net/projects/bzip2/files/bzip2-${BZIP2_VERSION}.tar.gz"
+    #download_tarfile "https://sourceforge.net/projects/bzip2/files/bzip2-${BZIP2_VERSION}.tar.gz"
     #http://www.bzip.org/$BZIP2_VERSION/bzip2-${BZIP2_VERSION}.tar.gz
+    download_tarfile "https://sourceware.org/pub/bzip2/bzip2-${BZIP2_VERSION}.tar.gz"
     CONFIGURE_ARGS="true" \
     MAKE_ARGS="make_bzip2" \
     INSTALL_ARGS="install_bzip2" \

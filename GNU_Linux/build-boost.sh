@@ -29,8 +29,8 @@ if [ ! -f "$INSTALL_DIR/boost.done" ]; then
     cd $BOOST_DIR
 
     cat <<EOF > tools/build/src/user-config.jam
-using python : $PYTHON_VERSION : ${INSTALL_DIR}/bin/python3 : <compileflags>-I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/python${PYTHON_VERSION};
-#using clang-custom  : $CLANG_VERSION : : <compileflags>-I${INSTALL_DIR}/include <linkflags>-L${INSTALL_DIR}/lib -L${INSTALL_DIR}/lib64;
+using python : $PYTHON_VERSION : ${INSTALL_DIR}/bin/python3 : <compileflags>-I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/python${PYTHON_VERSION} ;
+using gcc : ${GCC_VERSION} : ${INSTALL_DIR}/bin/g++-${GCC_VERSION} : <compileflags>-I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/python${PYTHON_VERSION} ;
 EOF
 
     # make build binary

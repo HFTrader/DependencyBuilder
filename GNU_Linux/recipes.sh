@@ -340,7 +340,7 @@ function build_package_sasl()
 
 function build_package_lapack()
 {
-    download_tarfile "http://www.netlib.org/lapack/lapack-${LAPACK_VERSION}.tgz"
+    download_tarfile "https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v${LAPACK_VERSION}.tar.gz" "lapack-${LAPACK_VERSION}.tar.gz"
     LAPACK_OPTS="-DCMAKE_INCLUDE_PATH=${INSTALL_DIR} \
                          -DCMAKE_CXX_COMPILER=$CXX         \
                          -DCMAKE_C_COMPILER=$CC            \

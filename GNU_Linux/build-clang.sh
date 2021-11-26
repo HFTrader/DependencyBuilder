@@ -53,6 +53,7 @@ if [ ! -e $INSTALL_DIR/clang.done ]; then
 
         # -DLIBCXX_LIBCXXABI_WHOLE_ARCHIVE=on -DLIBCXXABI_ENABLE_SHARED=off"
         #CLANG_OPTS_COMMON="$CLANG_OPTS_COMMON -DCMAKE_CXX_LINK_FLAGS=\"-L${HOST_GCC}/lib64 -Wl,-rpath,${HOST_GCC}/lib64\" "
+        # -DCMAKE_BUILD_WITH_INSTALL_RPATH=1 \
 
         # cmake
         rm -rf clang-build && mkdir -p clang-build
@@ -66,13 +67,14 @@ if [ ! -e $INSTALL_DIR/clang.done ]; then
             export CPPFLAGS="-I$INSTALL_DIR/include -I$INSTALL_DIR/include/ncurses"
             export CXX_FLAGS="-I$INSTALL_DIR/include -I$INSTALL_DIR/include/ncurses"
 
-            cmake -G "$CMAKE_BUILDER"  \
+            cmake -G "$CMAKE_BUILDER"   \
                   -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR  \
                   -DCMAKE_PREFIX_PATH=$INSTALL_DIR \
                   -DCMAKE_BUILD_TYPE=Release \
                   -DCMAKE_CXX_COMPILER=$CXX \
                   -DCMAKE_C_COMPILER=$CC \
                   -DCMAKE_EXPORT_COMMANDS=ON \
+                  -DLIBCXX_ENABLE_STATIC_ABI_LIBRARY=ON \
                   -DCMAKE_CXX_LINK_FLAGS="-L$INSTALL_DIR/lib -L$INSTALL_DIR/lib64 -Wl,-rpath,$INSTALL_DIR/lib64 -Wl,-rpath,$INSTALL_DIR/lib" \
                   -DCMAKE_CXX_FLAGS="$CXX_FLAGS -I$INSTALL_DIR/include" \
                   -DCMAKE_SHARED_LINKER_FLAGS="-L${INSTALL_DIR}/lib" \
@@ -94,7 +96,7 @@ if [ ! -e $INSTALL_DIR/clang.done ]; then
                   -DLLVM_INCLUDE_EXAMPLES=OFF \
                   -DLLVM_INCLUDE_TOOLS=ON \
                   -DLLVM_INCLUDE_TESTS=OFF \
-                  -DLLVM_ENABLE_PROJECTS="clang;compiler-rt;lld;lldb;libunwind;polly;clang-tools-extra" \
+                  -DLLVM_ENABLE_PROJECTS="clang;compiler-rt;libcxx;libcxxabi;lld;lldb;libunwind;polly;clang-tools-extra" \
                   -DLLVM_BUILD_LLVM_DYLIB:BOOL=ON \
                   -DLLVM_LINK_LLVM_DYLIB:BOOL=ON \
                   -DLLVM_DYLIB_COMPONENTS:STRING=all \
